@@ -1,0 +1,70 @@
+---
+/*
+  Left-to-right tree with grey dot nodes and curved connectors (like a "total quality" tree).
+  Lines are drawn from the real dot positions and redrawn on resize.
+  Below 820px it becomes an indented tree with plain guide lines.
+*/
+import DotNode, { type TreeNode } from "./DotNode.astro";
+interface Props { root: TreeNode; label?: string; }
+const { root, label } = Astro.props;
+const uid = `dt${Math.random().toString(36).slice(2, 7)}`;
+---
+<div class="dtree" data-dtree role="group" aria-label={label ?? root.label}>
+  <svg class="dt-lines" aria-hidden="true"></svg>
+  <DotNode node={root} path={uid} depth={0} />
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-dtree]").forEach((root) => {
+    const svg = root.querySelector<SVGSVGElement>(".dt-lines")!;
+    const draw = () => {
+      if (getComputedStyle(svg).display === "none") return;
+      const box = root.getBoundingClientRect();
+      svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+      let out = "";
+      root.querySelectorAll<HTMLElement>("[data-p]").forEach((el) => {
+        if (!el.dataset.p) return;
+        const parent = root.querySelector<HTMLElement>(`[data-id="${el.dataset.p}"] > .dt-dot`);
+        const dot = el.querySelector<HTMLElement>(":scope > .dt-dot");
+        if (!parent || !dot) return;
+        const a = parent.getBoundingClientRect(), b = dot.getBoundingClientRect();
+        const sx = a.left + a.width / 2 - box.left, sy = a.top + a.height / 2 - box.top;
+        const ex = b.left + b.width / 2 - box.left, ey = b.top + b.height / 2 - box.top;
+        const mx = sx + (ex - sx) * 0.45;
+        out += `<path d="M${sx.toFixed(1)} ${sy.toFixed(1)} C${mx.toFixed(1)} ${sy.toFixed(1)} ${mx.toFixed(1)} ${ey.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}"/>`;
+      });
+      svg.innerHTML = out;
+    };
+    new ResizeObserver(draw).observe(root);
+    document.fonts?.ready.then(draw);
+    draw();
+  });
+</script>
+
+<style>
+  .dtree { position: relative; overflow-x: auto; padding: 8px 4px; }
+  .dt-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .dt-lines :global(path) { fill: none; stroke: var(--edge); stroke-width: 1.4; opacity: .7; }
+  .dtree :global(.dt-node) { display: flex; align-items: center; gap: clamp(36px, 5vw, 72px); }
+  .dtree :global(.dt-kids) { display: flex; flex-direction: column; gap: 10px; }
+  .dtree :global(.d0 > .dt-kids) { gap: 26px; }
+  .dtree :global(.d1 > .dt-kids) { gap: 6px; }
+  .dtree :global(.dt-label), .dtree :global(.dt-leaf) { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 8px; }
+  .dtree :global(.dt-label) { justify-content: flex-end; text-align: right; }
+  .dtree :global(.dt-text) { line-height: 1.25; }
+  .dtree :global(.dt-text small) { display: block; color: var(--muted); font-size: .8em; }
+  .dtree :global(.d0 > .dt-label .dt-text) { font: 400 clamp(1.3rem, 2vw, 1.6rem)/1.1 var(--f-display); }
+  .dtree :global(.d1 > .dt-label .dt-text) { font-weight: 700; font-size: 1rem; }
+  .dtree :global(.dt-leaf .dt-text) { font-size: .9rem; color: var(--ink); }
+  .dtree :global(.dt-dot) { flex: none; width: 13px; height: 13px; border-radius: 50%; background: #9C98AC; border: 1.5px solid var(--ink); box-shadow: inset -2px -2px 0 rgba(0, 0, 0, .18); }
+  .dtree :global(.d0 > .dt-label .dt-dot) { width: 16px; height: 16px; background: var(--accent); }
+  .dtree :global(.d1 > .dt-label .dt-dot) { background: var(--accent); }
+
+  @media (max-width: 819px) {
+    .dt-lines { display: none; }
+    .dtree :global(.dt-node) { display: block; }
+    .dtree :global(.dt-label) { justify-content: flex-start; text-align: left; flex-direction: row-reverse; }
+    .dtree :global(.dt-kids) { margin: 8px 0 4px 6px; padding-left: 18px; border-left: 1.5px solid color-mix(in srgb, var(--edge) 45%, transparent); gap: 8px; }
+    .dtree :global(.d0 > .dt-kids) { gap: 14px; }
+  }
+</style>

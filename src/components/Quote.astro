@@ -1,0 +1,23 @@
+---
+import Avatar from "./Avatar.astro";
+interface Props { who: "chittu" | "ramesh" | "arjun" | "platini" | "elder" | "rohit" | "ananya" | "vikram"; name: string; meta: string; tags?: string[]; }
+const { who, name, meta, tags = [] } = Astro.props;
+---
+<figure class="quote card">
+  <Avatar kind={who} />
+  <div>
+    <blockquote><slot /></blockquote>
+    <figcaption><strong>{name}</strong> <span>· {meta}</span></figcaption>
+    {tags.length > 0 && <div class="tags">{tags.map((t) => <span class="pain">{t}</span>)}</div>}
+  </div>
+</figure>
+<style>
+  .quote { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: start; margin: 0; height: 100%; }
+  @media (max-width: 420px) { .quote { grid-template-columns: 1fr; } }
+  blockquote { margin: 0; font-size: 1.04rem; }
+  blockquote::before { content: "“"; display: block; height: 22px; font: 800 3rem/0.8 var(--f-head); color: var(--accent); }
+  figcaption { margin-top: 10px; }
+  figcaption span { color: var(--muted); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .pain { font-size: .78rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; background: var(--pink-tint); color: var(--pink-ink); }
+</style>

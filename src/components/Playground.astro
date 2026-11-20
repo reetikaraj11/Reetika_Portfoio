@@ -1,0 +1,71 @@
+---
+/* Interactive: set each Pizza Table quarter to its own height (range 650–1250 mm). */
+import Avatar from "./Avatar.astro";
+const MIN = 650, MAX = 1250;
+const segs = [
+  { who: "ramesh", name: "Ramesh", note: "prefers to sit", h: 780, color: "var(--sky)" },
+  { who: "chittu", name: "Chittu", note: "9 years old", h: 860, color: "var(--lemon)" },
+  { who: "elder", name: "Grandfather", note: "back & knee strain", h: 960, color: "var(--pink)" },
+  { who: "arjun", name: "Arjun", note: "shorter adult, standing", h: 1060, color: "var(--mint)" },
+] as const;
+const G = 300, S = 0.19; // ground y, px per mm
+const xs = [95, 245, 395, 545];
+---
+<div class="play card ink" data-play>
+  <svg viewBox="0 0 640 330" role="img" aria-label="Side view of the four Pizza Table quarters, each at its own height.">
+    <line x1="20" y1={G} x2="620" y2={G} stroke="var(--edge)" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="20" y1={G - 1250 * S} x2="620" y2={G - 1250 * S} stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="6 6" />
+    <text x="24" y={G - 1250 * S - 8} font-family="var(--f-hand)" font-size="17" fill="var(--muted)">old café table · 1250 mm</text>
+    <path d={`M250 ${G} q 70 -40 140 0 Z`} fill="var(--edge)" opacity=".9" />
+    {segs.map((s, i) => (
+      <g data-seg={i}>
+        <rect class="col" x={xs[i] - 6} y={G - s.h * S} width="12" height={s.h * S} rx="4" fill="#B9B6C9" stroke="var(--edge)" stroke-width="2" />
+        <rect class="top" x={xs[i] - 58} y={G - s.h * S - 12} width="116" height="14" rx="7" fill={s.color} stroke="var(--edge)" stroke-width="2.5" />
+        <text class="val" x={xs[i]} y={G - s.h * S - 22} text-anchor="middle" font-size="15" font-weight="800" font-family="var(--f-body)" fill="var(--ink)">{s.h} mm</text>
+      </g>
+    ))}
+  </svg>
+  <div class="controls">
+    {segs.map((s, i) => (
+      <label class="ctl">
+        <span class="who"><Avatar kind={s.who} size={40} /><span><strong>{s.name}</strong><small>{s.note}</small></span></span>
+        <input type="range" min={MIN} max={MAX} step="10" value={s.h} data-i={i} aria-label={`Height of quarter ${i + 1} for ${s.name}`} />
+      </label>
+    ))}
+  </div>
+  <div class="row">
+    <button type="button" class="btn" data-preset="same">Like the old table (1250 mm)</button>
+    <button type="button" class="btn primary" data-preset="own">Everyone their own</button>
+    <span class="hand">drag the sliders ↑</span>
+  </div>
+</div>
+<script>
+  const G = 300, S = 0.19;
+  document.querySelectorAll<HTMLElement>("[data-play]").forEach((root) => {
+    const inputs = [...root.querySelectorAll<HTMLInputElement>("input[type=range]")];
+    const own = inputs.map((i) => i.value);
+    const draw = (i: number) => {
+      const h = +inputs[i].value, g = root.querySelector(`[data-seg="${i}"]`)!;
+      g.querySelector(".col")!.setAttribute("y", String(G - h * S));
+      g.querySelector(".col")!.setAttribute("height", String(h * S));
+      g.querySelector(".top")!.setAttribute("y", String(G - h * S - 12));
+      const v = g.querySelector(".val")!; v.setAttribute("y", String(G - h * S - 22)); v.textContent = `${h} mm`;
+    };
+    inputs.forEach((inp, i) => inp.addEventListener("input", () => draw(i)));
+    root.querySelectorAll<HTMLButtonElement>("[data-preset]").forEach((b) => b.addEventListener("click", () => {
+      inputs.forEach((inp, i) => { inp.value = b.dataset.preset === "same" ? "1250" : own[i]; draw(i); });
+    }));
+  });
+</script>
+<style>
+  .play svg { width: 100%; max-width: 720px; margin: 0 auto; height: auto; display: block; }
+  .play svg rect, .play svg text { transition: y .25s ease, height .25s ease; }
+  .controls { display: grid; gap: 14px; margin-top: 10px; }
+  @media (min-width: 760px) { .controls { grid-template-columns: repeat(4, 1fr); } }
+  .ctl { display: grid; gap: 8px; }
+  .who { display: flex; gap: 10px; align-items: center; line-height: 1.2; }
+  .who small { display: block; color: var(--muted); font-size: .8rem; }
+  input[type=range] { width: 100%; accent-color: var(--lav-ink); }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 18px; }
+  .row .btn { padding: 8px 16px; font-size: .9rem; }
+</style>

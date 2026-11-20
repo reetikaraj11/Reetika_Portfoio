@@ -1,0 +1,43 @@
+---
+interface Props {
+  id: string;
+  num?: string;
+  title: string;
+  lede?: string;
+  tone?: "plain" | "lav" | "sky" | "pink" | "lemon" | "mint" | "white";
+}
+const { id, num, title, lede, tone = "plain" } = Astro.props;
+---
+<section id={id} class:list={["chapter", `bg-${tone}`]} aria-labelledby={`${id}-h`}>
+  <div class="wrap">
+    <header class:list={["ch-head", "reveal", { numbered: !!num }]}>
+      {num && <span class="ch-num" aria-hidden="true">{num}<i></i></span>}
+      <div class="ch-text">
+        <h2 id={`${id}-h`} set:html={title} />
+        {lede && <p class="lede" set:html={lede} />}
+      </div>
+    </header>
+    <div class="ch-body"><slot /></div>
+  </div>
+</section>
+
+<style>
+  .chapter { padding: clamp(64px, 9vw, 112px) 0; position: relative; }
+  .ch-head { margin-bottom: clamp(28px, 4vw, 48px); max-width: 980px; }
+  .ch-head.numbered { display: grid; grid-template-columns: auto 1fr; column-gap: clamp(14px, 2vw, 24px); align-items: start; }
+  .ch-num { display: inline-flex; align-items: center; gap: clamp(12px, 1.6vw, 22px); font: 400 clamp(1.9rem, 3.6vw, 2.9rem)/1.1 var(--f-display); color: var(--ink); font-variant-numeric: lining-nums tabular-nums; }
+  .ch-num i { display: block; width: clamp(28px, 5vw, 64px); height: 1px; background: var(--ink); opacity: .7; transform: scaleX(0); transform-origin: left; transition: transform 1s cubic-bezier(.2, .7, .2, 1) .25s; }
+  .ch-head:global(.in) .ch-num i { transform: scaleX(1); }
+  @media (prefers-reduced-motion: reduce) { .ch-num i { transform: none; transition: none; } }
+  .ch-text h2 { margin-bottom: .4em; max-width: 20em; }
+  .ch-text .lede { margin: 0; }
+  .bg-plain { background: var(--bg); }
+  .bg-white { background: var(--surface); }
+  .bg-lav { background: color-mix(in srgb, var(--lav-tint) 70%, var(--bg)); }
+  .bg-sky { background: color-mix(in srgb, var(--sky-tint) 75%, var(--bg)); }
+  .bg-pink { background: color-mix(in srgb, var(--pink-tint) 70%, var(--bg)); }
+  .bg-lemon { background: color-mix(in srgb, var(--lemon-tint) 80%, var(--bg)); }
+  .bg-mint { background: color-mix(in srgb, var(--mint-tint) 75%, var(--bg)); }
+  .chapter :global(h2 em) { font-style: normal; }
+  @media (max-width: 560px) { .ch-head.numbered { grid-template-columns: 1fr; row-gap: 6px; } }
+</style>

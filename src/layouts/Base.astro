@@ -1,0 +1,86 @@
+---
+import "../styles/global.css";
+interface Props { title: string; description?: string; }
+const { title, description = "Reetika Raj — Product Design, Development & Management, M.Des at IISc Bengaluru." } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..600&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Nunito+Sans:opsz,wght@6..12,400..800&family=Patrick+Hand&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-nav">
+    <div class="wrap nav-inner">
+      <a class="logo" href={`${base}/`} aria-label="Reetika Raj — home">
+        <span class="logo-blob" aria-hidden="true">R</span><span>Reetika Raj</span>
+      </a>
+      <nav aria-label="Main">
+        <a href={`${base}/#work`}>Work</a>
+        <a href={`${base}/#about`}>About</a>
+        <a class="cv" href={`${base}/Reetika_Raj_CV.pdf`}>CV</a>
+      </nav>
+    </div>
+    <div class="progress" aria-hidden="true"><span></span></div>
+  </header>
+  <main id="main"><slot /></main>
+  <footer class="site-foot">
+    <div class="wrap foot-inner">
+      <p><strong>Reetika Raj</strong> · Product Design, Development &amp; Management · M.Des, IISc Bengaluru</p>
+      <p class="muted"><a href="mailto:reetikaraj@iisc.ac.in">reetikaraj@iisc.ac.in</a> · <a href="https://www.linkedin.com/in/reetika-raj-145333159/" target="_blank" rel="noopener">LinkedIn</a></p>
+    </div>
+  </footer>
+  <script>
+    const bar = document.querySelector<HTMLElement>(".progress span");
+    const onScroll = () => {
+      const h = document.documentElement;
+      const p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
+      if (bar) bar.style.transform = `scaleX(${p})`;
+    };
+    addEventListener("scroll", onScroll, { passive: true }); onScroll();
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }), { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+    document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    // Split the page's main headline into words for a one-time staggered entrance.
+    const h1 = document.querySelector<HTMLElement>("main h1");
+    if (h1 && h1.children.length === 0) {
+      const words = (h1.textContent ?? "").trim().split(/\s+/);
+      h1.setAttribute("aria-label", words.join(" "));
+      h1.innerHTML = words.map((w, i) => `<span class="w" aria-hidden="true" style="--i:${i}">${w}</span>`).join(" ");
+      h1.classList.add("split");
+    }
+  </script>
+</body>
+</html>
+
+<style is:global>
+  .skip { position: absolute; left: -999px; top: 8px; background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 999px; z-index: 50; }
+  .skip:focus { left: 8px; }
+  .site-nav { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font: 750 1.1rem var(--f-head); }
+  .logo-blob { display: inline-grid; place-items: center; width: 36px; height: 36px; background: var(--lav); border: 1.5px solid var(--edge); border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; font-size: 1.05rem; }
+  .site-nav nav { display: flex; gap: 6px; }
+  .site-nav nav a { text-decoration: none; color: var(--ink); font-weight: 700; padding: 6px 12px; border-radius: 999px; }
+  .site-nav nav a { position: relative; }
+  .site-nav nav a:not(.cv)::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 3px; height: 1.5px; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform .3s cubic-bezier(.2, .7, .2, 1); }
+  .site-nav nav a:not(.cv):hover::after, .site-nav nav a:not(.cv):focus-visible::after { transform: scaleX(1); }
+  .site-nav nav a.cv { transition: background .25s ease; }
+  .site-nav nav a.cv:hover { background: var(--lav-tint); }
+  .logo span:last-child { white-space: nowrap; }
+  @media (max-width: 420px) { .site-nav nav { gap: 0; } .site-nav nav a { padding: 6px 9px; } }
+  .site-nav nav a.cv { border: 1.5px solid var(--edge); background: var(--surface); }
+  .progress { height: 3px; background: transparent; }
+  .progress span { display: block; height: 100%; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); }
+  .site-foot { border-top: 2px dashed var(--line); padding: 36px 0 56px; }
+  .foot-inner p { margin: 0 0 4px; }
+</style>

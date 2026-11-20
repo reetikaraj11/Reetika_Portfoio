@@ -1,0 +1,615 @@
+---
+import Base from "../../layouts/Base.astro";
+import Chapter from "../../components/Chapter.astro";
+import Stat from "../../components/Stat.astro";
+import WaveSteps from "../../components/WaveSteps.astro";
+import "../../styles/case.css";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const img = (n: string) => `${base}/work/crib/${n}.webp`;
+
+/* ---------- data (from her portfolio "Aisle of Wandering Heavenly Beings") ---------- */
+const steps = [
+  { title: "Project brief & business understanding", out: "Design brief and business requirements" },
+  { title: "User research", out: "User needs and product opportunities" },
+  { title: "Market research & competitor analysis", out: "Market insights and competitor analysis" },
+  { title: "Trend forecasting & theme selection", out: "Selected theme and moodboard" },
+  { title: "Concept development & visual language", out: "Characters, motifs and design direction" },
+  { title: "Surface design & print development", out: "Print artworks and surface design direction" },
+  { title: "Product composition & collection", out: "Hero quilt and coordinated crib collection" },
+  { title: "Functional design: play gym", out: "Themed play gym designs and sensory components" },
+  { title: "Refinement, costing & feasibility", out: "Production-ready collection designs" },
+  { title: "Final presentation & client handoff", out: "Complete collection presentation and handoff" },
+];
+const range = ["Quilt", "Bumper", "Towel", "Shaped cushion", "Sleeping bag", "Play mat", "Swaddle", "Toy", "Doll", "Bunting", "Thumbie / rattle", "Mobile", "Blanket"];
+const dev = [
+  { t: "Sensory", tone: "mint", pts: ["Sensitive skin is easily hurt.", "Wants to taste everything.", "Wool, corduroy and velvet textures help sensory development."] },
+  { t: "Visual", tone: "sky", pts: ["Colourful hanging mobiles and toys give visual stimulation.", "Fascinated by the face in the mirror; slowly learns it is their own reflection."] },
+  { t: "Cognitive", tone: "lemon", pts: ["Investigates shapes, sizes and textures.", "Explores objects with both hands.", "Enjoys contemplating nature."] },
+  { t: "Motor", tone: "pink", pts: ["Moves legs and hands often.", "Lies on back or tummy, sits, crawls and stands with help.", "Push and pull toys are great fun."] },
+];
+const needs = [
+  { t: "Safety", d: "Skin that hurts easily; everything goes in the mouth.", c: "var(--sky)" },
+  { t: "Comfort", d: "Soft textures and a regular sleep routine.", c: "var(--mint)" },
+  { t: "Usability", d: "Fits daily routines: sleep, bath, play, dressing.", c: "var(--pink)" },
+  { t: "Aesthetics", d: "Happy and cute for babies, stylish for the brand.", c: "var(--lemon)" },
+];
+const insights = [
+  { i: "Babies are fascinated by their own reflection", d: "A shell on the circular play mat lifts up to show a mirror.", img: "mat" },
+  { i: "Different textures help sensory development", d: "Velboa plush, appliqué and embroidery on cushions, toys and the quilt.", img: "seahorse-photo" },
+  { i: "Colourful hanging mobiles stimulate the eyes", d: "A sea-creature mobile, and hanging toys on the play gym.", img: "mobile-photo" },
+  { i: "Babies explore shapes and sounds with both hands", d: "Squeakers, rattles and crinkle paper inside soft toys.", img: "gym-toys-photo" },
+];
+const palette = [
+  { n: "Sea mist", h: "#A9CDE6", u: "quilt border" }, { n: "Lagoon", h: "#6FCBB4", u: "tails, seaweed" },
+  { n: "Shell pink", h: "#F2A7BD", u: "hair, shells" }, { n: "Sunlit gold", h: "#CBB13C", u: "starfish, fins" },
+  { n: "Sand", h: "#F5D9BF", u: "seabed" }, { n: "Cambric white", h: "#FFFFFF", u: "base cloth" },
+];
+const mermaid = [
+  { img: "mer-1", t: "Hand sketches" },
+  { img: "mer-2", t: "First digital illustrations", fb: "Nice, but a little mature for babies." },
+  { img: "mer-3", t: "A baby merman and mermaid", fb: "Baby mermen will not work, and the mermaid should be simpler." },
+  { img: "mer-4", t: "Mermaid in a first quilt idea", fb: "Change the mermaid, and make the quilt more of a geometric composition." },
+  { img: "mer-5", t: "A simpler mermaid", fb: "Change the hair to a golden shade, not dark brown or brown." },
+  { img: "mer-6", t: "Golden hair, new poses", fb: "Make the eyes more innocent." },
+];
+const motifs = [
+  { t: "Shells and pearls", g: "shells" }, { t: "Starfish", g: "starfish" }, { t: "Corals and seaweed", g: "corals" },
+  { t: "Jellyfish, octopus, seahorses", g: "creatures" }, { t: "Fish and crab", g: "fish" },
+];
+const quiltRounds = [
+  { t: "Round 1: one mermaid", s: "Many frames and wreaths", imgs: ["q1a", "q1b", "q1c", "q1d"], fb: "Use more than one mermaid, so the quilt can be seen from either side. Maybe 2–3 mermaids in one layout." },
+  { t: "Round 2: three mermaids", s: "Spread across the quilt", imgs: ["q2a", "q2b"], fb: "With three, each mermaid looks small and the centre takes all the focus." },
+  { t: "Round 3: two mermaids", s: "Larger, facing different ways", imgs: ["q3"], fb: "Selected. Take it forward and add a border.", ok: true },
+  { t: "Round 4: border", s: "Border prints added", imgs: ["q4"], fb: "Make the border a little denser, and bring it to exactly six colours." },
+];
+const quiltDetails = [
+  { x: 28, y: 22, t: "Jellyfish with beaded tentacles" }, { x: 62, y: 22, t: "Golden-haired mermaid" },
+  { x: 37, y: 44, t: "Pink-haired mermaid" }, { x: 73, y: 55, t: "Pink jellyfish" },
+  { x: 53, y: 70, t: "Seaweed" }, { x: 65, y: 79, t: "Oyster shell with a pearl" },
+];
+const matRounds = [
+  { imgs: ["mat1a", "mat1b"], fb: "Keep only one mermaid. The right-hand mermaid on the second layout was selected." },
+  { imgs: ["mat2a", "mat2b"], fb: "Combine the jellyfish and the seahorse in one layout." },
+  { imgs: ["mat3a", "mat3b"], fb: "Add a sort of covering for the crab. This layout was then selected.", ok: true },
+];
+const matToys = [
+  { k: "Squeaker", w: "Inside the jellyfish.", x: 35, y: 12 },
+  { k: "Lift-up flap", w: "The seahorse's skin-coloured part is a flap; the pink part is slightly raised.", x: 16, y: 40 },
+  { k: "Mirror", w: "The shell in the middle lifts up to show a mirror.", x: 50, y: 58 },
+  { k: "Rattle", w: "Inside the crab, which moves in and out of its shell like a pocket.", x: 36, y: 80 },
+];
+const sleep = [
+  { t: "Fitted sheet", s: "Repeat print", a: "print-2", p: "sheet-photo" },
+  { t: "Sleeping bag", s: "Selected design", a: "bag-art", p: "bag-photo" },
+  { t: "Swaddles", s: "4 designs, 52 × 52 in", a: "swaddle-art", p: "swaddle-photo" },
+  { t: "Thumbie", s: "Star comforter", a: "thumbie-art", p: "thumbie-photo" },
+  { t: "Bath towel", s: "Artwork and finished towel", a: "towel-art", p: "towel-photo" },
+  { t: "Blanket", s: "Artwork and finished blanket", a: "blanket-art", p: "blanket-photo" },
+];
+const toys = [
+  { t: "Fish cushion", a: "fish-art", p: "fish-photo" }, { t: "Seahorse cushion", a: "seahorse-art", p: "seahorse-photo" },
+  { t: "Starfish cushion", a: "star-art", p: "star-photo" }, { t: "Shell cushion", a: "shell-art", p: "shell-photo" },
+  { t: "Cushions", a: "cushion-art", p: "cushion-photo" }, { t: "Doll", a: "doll-art", p: "doll-photo" },
+  { t: "Bunting", a: "bunting-art", p: "bunting-photo" }, { t: "Mobile", a: "mobile-art", p: "mobile-photo" },
+];
+const archToys = [
+  { img: "toy-snowball", t: "Snowball", f: "Squeaker", x: 12, h: 46 }, { img: "toy-tree", t: "Tree", f: "Crinkle or rattle", x: 30, h: 30 },
+  { img: "toy-penguin", t: "Penguin", f: "Squeaker", x: 50, h: 22 }, { img: "toy-snowflake", t: "Snowflake", f: "Crinkle or rattle", x: 70, h: 30 },
+  { img: "toy-snowball-2", t: "Snowball", f: "Rattle", x: 88, h: 46 },
+];
+const costs = [
+  { t: "Quilt", total: 657, rows: [["Printing", 150], ["Fabric: poplin + cambric back", 115], ["Dyeing (₹60/m)", 90], ["Embroidery (₹80/hr)", 80], ["Hand embroidery", 80], ["Sewing", 80], ["Polyfill, 300 gsm", 70], ["Finishing", 10], ["Yarn and label", 7]], note: "Poplin 44″, 1.5 m with a 1.5 m cambric back." },
+  { t: "Both bumpers", total: 1094, rows: [["Printing (₹150/m)", 450], ["Fabric: poplin + cambric back", 360], ["Dyeing (₹60/m)", 90], ["Polyfill, 300 gsm", 70], ["Hand embroidery", 40], ["Sewing", 40], ["Finishing", 10], ["Embroidery (₹80/hr)", 7.5], ["Yarn and label", 7]], note: "Poplin 44″, 3 m with a 3 m cambric back." },
+  { t: "Seahorse cushion", total: 237, rows: [["Polyfill, 300 gsm", 70], ["Velboa 1 (₹120/m)", 60], ["Sewing", 40], ["Velboa 2 (₹110/m)", 30], ["Embroidery (₹80/hr)", 20], ["Finishing", 10], ["Yarn and label", 7]], note: "Two velboa plush fabrics give the soft, textured feel." },
+  { t: "Fish cushion", total: 217, rows: [["Polyfill, 300 gsm", 60], ["Fabric: poplin (₹60/m)", 40], ["Dyeing", 40], ["Sewing", 40], ["Embroidery (₹80/hr)", 20], ["Finishing", 10], ["Yarn and label", 7]], note: "Dyed poplin keeps the fish light and low-cost." },
+];
+const handoff = [
+  { t: "Print artworks", d: "Quilt print at 100 × 120 cm", img: "q-final" },
+  { t: "Production print files", d: "Mat parts on one 38 × 60 in panel", img: "mat-printfile" },
+  { t: "Colour specification", d: "Six colours for every product", sw: true },
+  { t: "Motifs and characters", d: "Mermaids and supporting motifs", img: "mermaid-gold" },
+  { t: "Costing", d: "Line-by-line cost per product", bars: true },
+  { t: "Product visualisations", d: "Styled photographs of the collection", img: "crib-wide" },
+];
+const fmt = (v: number) => `₹${v.toLocaleString("en-IN")}`;
+---
+<Base title="Beneath the Water, Into the Snow · Reetika Raj" description="Case study: a mermaid crib collection of 13 products and a penguin play gym for babies aged 0 to 18 months.">
+<div class="case" style="--accent:var(--pink);--accent-ink:var(--pink-ink);--accent-tint:var(--pink-tint)">
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Beneath the Water, Into the Snow</h1>
+      <p class="lede">A mermaid crib collection of 13 products, and a penguin play gym, for babies aged 0 to 18 months. The collection is called <em>Aisle of Wandering Heavenly Beings</em>, made for an international kids' home brand inspired by Pottery Barn Kids.</p>
+      <div class="hero-tags"><span class="sticker pink">Surface design</span><span class="sticker sky">Illustration</span><span class="sticker mint">Textiles</span><span class="sticker">Costing</span></div>
+    </div>
+    <div class="arch-hero">
+      <div class="arch"><img src={img("hero-crib")} alt="The finished crib under a pink canopy, dressed with the mermaid quilt, bumpers and shaped cushions" loading="eager" /></div>
+      <img class="hero-mermaid" src={img("mermaid-pink")} alt="" />
+      <img class="hero-star" src={img("m-starfish")} alt="" />
+    </div>
+  </div>
+</header>
+
+<section class="glance">
+  <div class="wrap">
+    <p class="pb-like reveal">The client asked for a full crib collection drawn from their theme board about life beneath the water. It had to cost under 150 US dollars in total, use only 5–6 colours and rely mainly on prints. A second brief followed: a shaped play gym.</p>
+    <div class="arches reveal">
+      {[["quilt", "Hero quilt", "100 × 120 cm, screen printed"], ["mat", "Circular play mat", "Squeaker, mirror, flap and rattle"], ["crib-closeup", "Coordinated crib set", "13 products, one visual language"], ["gym", "Penguin play gym", "A second, separate brief"]].map(([n, t, s]) => (
+        <figure><div class="arch small"><img src={img(n)} alt={t} loading="lazy" /></div><figcaption><b>{t}</b><span>{s}</span></figcaption></figure>
+      ))}
+    </div>
+    <div class="grid g4 stats reveal">
+      <Stat num="0–18" label="months, the age of the users" tone="sky" />
+      <Stat num="13" label="products in the collection range" tone="mint" />
+      <Stat num="6" label="colours across every product" tone="pink" />
+      <Stat num="$150" label="cost limit for the whole collection" tone="lemon" />
+    </div>
+  </div>
+</section>
+
+<Chapter id="method" title="Methodology: how the project flowed" lede="Ten steps, from the client's brief to the final handoff. Each step ends with something the next one builds on." tone="white">
+  <WaveSteps steps={steps} />
+</Chapter>
+
+<Chapter id="brief" num="01" title="The brief: a crib collection from life beneath the water" tone="plain">
+  <div class="grid g3 reveal">
+    <div class="card ink">
+      <h3>The inspiration brand</h3>
+      <p class="muted">Pottery Barn Kids was founded in 1999 by two mothers who wanted children's furniture that was safe and comfortable, but also stylish, fun and able to grow with the child. Its promise is quality, comfort, safety and style.</p>
+    </div>
+    <div class="card ink">
+      <h3>The brief</h3>
+      <p class="muted">Design a crib collection for babies aged 0–18 months, using the mood board and colour palette from the client. Their theme board focused on life beneath the water.</p>
+      <div class="theme-row">{["mermaid-gold", "motif-fish-1", "motif-corals-2", "m-shell", "m-starfish"].map((n, i) => <span><img src={img(n)} alt="" />{["Mermaids", "Fishes", "Coral reefs", "Shells", "Starfish"][i]}</span>)}</div>
+      <p class="muted small" style="margin:10px 0 0">The buyer's board is confidential, so it is not shown here.</p>
+    </div>
+    <div class="card ink constraints">
+      <h3>Constraints</h3>
+      <p><b>$150</b>cost limit for the whole collection, so every product had to be cost-effective.</p>
+      <p><b>5–6</b>colours only, shared across every product in the range.</p>
+      <p><b>Prints</b>mainly prints, with very little surface work, and always kid-friendly.</p>
+    </div>
+  </div>
+  <div class="range reveal"><span class="muted small">Product range · 13 products</span>{range.map((r) => <span class="chip">{r}</span>)}</div>
+</Chapter>
+
+<Chapter id="users" num="02" title="Users: babies who touch and taste everything, parents who buy" lede="Babies touch, taste, watch and play with every product; parents and caregivers choose and buy it. Studying how babies grow in their first 18 months showed what each product must do." tone="white">
+  <div class="grid g4 reveal">
+    {dev.map((d) => <div class:list={["card", "flat", `tone-${d.tone}`]}><h3>{d.t}</h3><ul class="dots-list">{d.pts.map((p) => <li>{p}</li>)}</ul></div>)}
+  </div>
+  <div class="grid g2 reveal" style="margin-top:32px;align-items:center">
+    <div class="needs">
+      <svg viewBox="0 0 400 220" role="img" aria-label="Four needs for every product: safety, comfort, usability, aesthetics">
+        {needs.map((n, i) => {
+          const a0 = Math.PI - (i * Math.PI) / 4, a1 = Math.PI - ((i + 1) * Math.PI) / 4, R = 180, r = 80, cx = 200, cy = 205;
+          const p = (rad: number, a: number) => `${(cx + rad * Math.cos(a)).toFixed(1)} ${(cy - rad * Math.sin(a)).toFixed(1)}`;
+          const am = (a0 + a1) / 2;
+          return (<g><path d={`M${p(R, a0)} A${R} ${R} 0 0 1 ${p(R, a1)} L${p(r, a1)} A${r} ${r} 0 0 0 ${p(r, a0)} Z`} fill={n.c} stroke="var(--surface)" stroke-width="3" /><text x={cx + 130 * Math.cos(am)} y={cy - 130 * Math.sin(am) + 5} text-anchor="middle">{n.t}</text></g>);
+        })}
+        <text x="200" y="196" text-anchor="middle" class="nc">4 needs</text>
+      </svg>
+      <dl>{needs.map((n) => <div><dt>{n.t}</dt><dd>{n.d}</dd></div>)}</dl>
+    </div>
+    <div>
+      <h3>From insight to design</h3>
+      <ul class="i2d">{insights.map((x) => <li><img src={img(x.img)} alt="" loading="lazy" /><div><b>{x.i}</b><span>→ {x.d}</span></div></li>)}</ul>
+    </div>
+  </div>
+</Chapter>
+
+<Chapter id="market" num="03" title="Market research: what was already on the shelf" lede="Kids' bedding from five brands on the same underwater and mermaid theme was reviewed, keeping the brief in mind." tone="lemon">
+  <div class="grid g2 reveal">
+    <div class="card ink">
+      <h3>Brands reviewed</h3>
+      <div class="brand-chips">{["Pottery Barn", "Crate and Barrel", "Maison", "Home Center", "Dunelm"].map((b) => <span>{b}</span>)}</div>
+      <p class="muted small" style="margin:14px 0 0">Competitor product photos are not reproduced here.</p>
+    </div>
+    <div class="card ink">
+      <h3>What was compared</h3>
+      <ol class="num-list"><li>Size of the products</li><li>Technique used to create the design</li><li>Type of fabric and trims</li><li>Cost</li></ol>
+      <p class="muted small" style="margin:10px 0 0">Each product was judged on comfort, technique and how new the design felt.</p>
+    </div>
+  </div>
+</Chapter>
+
+<Chapter id="trend" num="04" title="Trend and theme: seashells and scales" tone="white">
+  <div class="grid g2 reveal">
+    <div class="card ink">
+      <h3>What the trend said</h3>
+      <p class="muted small">From the WGSN “TransForm: Seashells & Scales” forecast (board not reproduced).</p>
+      <ul class="dots-list"><li>Take print, pattern and surface ideas from the ocean: fish scales, mermaid tails, coral reefs and sea shells.</li><li>Highly commercial and works for all genders, from glittery mermaid motifs to nautical fish themes.</li><li>Scales work on soft and hard goods alike, from scalloped bath mats to ceramic trinket trays.</li></ul>
+    </div>
+    <div class="card ink theme-final">
+      <span class="muted small">Theme finalised</span>
+      <p class="tf">Underwater / Mermaid</p>
+      <p class="muted">It sat well with the client's theme board of life beneath the water.</p>
+    </div>
+  </div>
+  <blockquote class="mood reveal">“Very different beings live together in harmony beneath the water, and the mermaid, half human and half fish, is mainly a dream. It adds to the essence of this whole other world.”<cite>From her moodboard story</cite></blockquote>
+  <div class="keywords reveal">{["Flowy", "Happy", "Blue", "Cute", "Adventurous", "Scaly", "All over", "Moss"].map((k, i) => <span style={`--c:${["var(--sky-tint)", "var(--pink-tint)", "var(--sky)", "var(--pink-tint)", "var(--mint-tint)", "var(--mint-tint)", "var(--lemon-tint)", "var(--lemon-tint)"][i]}`}>{k}</span>)}</div>
+  <div class="palette reveal">
+    {palette.map((c) => <div class="sw"><i style={`background:${c.h}`}></i><b>{c.n}</b><small>{c.h} · {c.u}</small></div>)}
+  </div>
+  <p class="muted small reveal">The six colours used in the final quilt.</p>
+</Chapter>
+
+<Chapter id="mermaid" num="05" title="Finding the mermaid: five rounds to an innocent character" lede="Client feedback turned a grown-up mermaid into a simple, innocent character made for babies." tone="pink">
+  <div class="evo reveal" tabindex="0" aria-label="Mermaid evolution, scroll sideways">
+    {mermaid.map((m, i) => (
+      <figure>
+        <div class="evo-img"><img src={img(m.img)} alt={m.t} loading="lazy" /></div>
+        <figcaption><span class="evo-n">{i + 1}</span><b>{m.t}</b>{m.fb && <p class="fb"><small>Client feedback</small>{m.fb}</p>}</figcaption>
+      </figure>
+    ))}
+    <figure class="final">
+      <div class="evo-img duo"><img src={img("mermaid-pink")} alt="Final pink-haired mermaid" loading="lazy" /><img src={img("mermaid-gold")} alt="Final golden-haired mermaid" loading="lazy" /></div>
+      <figcaption><span class="evo-n">7</span><b>Final mermaids</b><p class="fb ok"><small>Selected</small>Two mermaids, used across the whole collection.</p></figcaption>
+    </figure>
+  </div>
+  <h3 class="sub reveal">A library of supporting motifs</h3>
+  <p class="muted reveal" style="max-width:40em">Shells, starfish, corals and sea creatures, drawn in the same soft, rounded style as the mermaid so every product speaks one visual language.</p>
+  <div class="motifs card reveal">
+    {motifs.map((g) => (
+      <div class="mg"><h4>{g.t}</h4><div class="mg-grid">{[1, 2, 3, 4, 5, 6].filter((k) => !(g.g !== "creatures" && k > 5)).map((k) => <img src={img(`motif-${g.g}-${k}`)} alt="" loading="lazy" />)}</div></div>
+    ))}
+  </div>
+</Chapter>
+
+<Chapter id="surface" num="06" title="Surface design: prints carry the design" lede="The motifs became repeat prints, border prints and placed artworks. Prints carry most of the design, as the brief asked, with small touches of surface work." tone="white">
+  <div class="grid g-21 reveal">
+    <div>
+      <h3>Repeat prints</h3>
+      <div class="prints">{[1, 2, 3, 4, 5, 6, 7, 8].map((k) => <figure><img src={img(`print-${k}`)} alt={`Repeat print ${k}`} loading="lazy" /><figcaption>{k <= 4 ? "Fitted sheet" : "Swaddle"}</figcaption></figure>)}</div>
+    </div>
+    <div>
+      <h3>Surface technique trials</h3>
+      <div class="trials">{[1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => <img src={img(`trial-${k}`)} alt={`Embroidery and appliqué trial ${k}`} loading="lazy" />)}</div>
+      <div class="range" style="margin-top:12px">{["Screen print", "6 colours", "Cambric base", "Minimal surface work"].map((r) => <span class="chip">{r}</span>)}</div>
+    </div>
+  </div>
+</Chapter>
+
+<Chapter id="quilt" num="07" title="The hero quilt: four rounds of layouts" lede="The quilt sets the look for the whole collection, so its layout was reworked until it read well from either side of the cot." tone="sky">
+  <div class="rounds reveal">
+    {quiltRounds.map((r) => (
+      <div class:list={["round", { ok: r.ok }]}>
+        <div class:list={["r-imgs", `n${r.imgs.length}`]}>{r.imgs.map((n) => <img src={img(n)} alt={`${r.t} layout`} loading="lazy" />)}</div>
+        <b>{r.t}</b><span class="muted small">{r.s}</span>
+        <p class:list={["fb", { ok: r.ok }]}><small>Client feedback</small>{r.fb}</p>
+      </div>
+    ))}
+    <div class="round ok"><div class="r-imgs n1"><img src={img("q-final")} alt="Final quilt print" loading="lazy" /></div><b>Final print</b><span class="muted small">100 × 120 cm, six colours</span></div>
+  </div>
+  <div class="grid g2 reveal quilt" style="margin-top:36px">
+    <div class="q-wrap">
+      <img src={img("quilt-final")} alt="The finished hero quilt: two mermaids, jellyfish, starfish and a sandy seabed" loading="lazy" />
+      {quiltDetails.map((d, i) => <span class="q-n" style={`left:${d.x}%;top:${d.y}%`}>{i + 1}</span>)}
+    </div>
+    <div>
+      <p>Two mermaids, jellyfish, starfish and a sandy seabed, screen printed on cambric. Small areas of embroidery and appliqué add touch without breaking the print-first brief.</p>
+      <dl class="specs"><div><dt>Size</dt><dd>100 × 120 cm</dd></div><div><dt>Material</dt><dd>Cambric</dd></div><div><dt>Colours</dt><dd>6</dd></div><div><dt>Technique</dt><dd>Screen print</dd></div></dl>
+      <div class="qd">{quiltDetails.map((d, i) => <figure><img src={img(`qd-${i + 1}`)} alt={d.t} loading="lazy" /><figcaption><span>{i + 1}</span>{d.t}</figcaption></figure>)}</div>
+    </div>
+  </div>
+</Chapter>
+
+<Chapter id="bumper" num="08" title="Bumper: from shaped scenes to a simple print" lede="Two rounds of feedback took the bumper from shaped scenes to a print-only rectangle that costs less to make." tone="white">
+  <div class="grid g2 reveal">
+    <div class="b-steps">
+      <div><b>1 · Shaped bumpers</b><div class="b-row"><img src={img("b1a")} alt="Shaped bumper design 1" /><img src={img("b1b")} alt="Shaped bumper design 2" /></div><p class="fb"><small>Client feedback</small>Make it rectangular only, and improve the composition a little.</p></div>
+      <div><b>2 · Rectangular, with borders</b><div class="b-row"><img src={img("b2a")} alt="Rectangular bumper with borders 1" /><img src={img("b2b")} alt="Rectangular bumper with borders 2" /></div><p class="fb"><small>Client feedback</small>Remove the borders. Keep it simple and in prints only.</p></div>
+      <div><b>3 · Selected designs</b> <span class="muted small">16 × 92 in each</span><div class="b-row sel"><img src={img("b3a")} alt="Selected bumper design 1" /><img src={img("b3b")} alt="Selected bumper design 2" /></div></div>
+    </div>
+    <div>
+      <img class="rounded" src={img("bumper-photo")} alt="Both selected bumpers made up and fitted to the cot" loading="lazy" />
+      <div class="b-row three"><img src={img("bumper-star")} alt="Starfish detail on the bumper" /><img src={img("bumper-fish")} alt="Fish detail on the bumper" /></div>
+    </div>
+  </div>
+</Chapter>
+
+<Chapter id="mat" num="09" title="Circular play mat: every creature does something" lede="Three rounds of layouts, then a mat where each creature is also a toy. Choose a feature to find it on the mat." tone="lemon">
+  <div class="mat-rounds reveal">
+    {matRounds.map((r, i) => (
+      <div class:list={["mr", { ok: r.ok }]}><span class="muted small">Round {i + 1}</span><div class="mr-imgs">{r.imgs.map((n) => <img src={img(n)} alt={`Play mat layout, round ${i + 1}`} loading="lazy" />)}</div><p class:list={["fb", { ok: r.ok }]}><small>Client feedback</small>{r.fb}</p></div>
+    ))}
+  </div>
+  <div class="mat-play reveal" data-mat>
+    <div class="mat-img">
+      <img src={img("mat")} alt="The finished circular play mat with a mermaid, jellyfish, seahorse, crab and a shell mirror" loading="lazy" />
+      {matToys.map((t, i) => <span class:list={["ring", { on: i === 0 }]} data-r={i} style={`left:${t.x}%;top:${t.y}%`}></span>)}
+    </div>
+    <div>
+      <div class="mat-btns" role="group" aria-label="Play mat features">
+        {matToys.map((t, i) => <button type="button" data-r={i} aria-pressed={i === 0 ? "true" : "false"}>{t.k}</button>)}
+      </div>
+      {matToys.map((t, i) => <p class="mat-what" data-r={i} hidden={i !== 0}>{t.w}</p>)}
+      <div class="printfile">
+        <img src={img("mat-printfile")} alt="Print file with the mat circle and all 3D parts on one panel" loading="lazy" />
+        <p><b>Print file</b>Laid out to use the minimum fabric: the mat circle and every 3D part sit on one 38 × 60 inch panel.</p>
+      </div>
+    </div>
+  </div>
+</Chapter>
+
+<Chapter id="collection" num="10" title="The collection: one visual language, from artwork to product" lede="The same motifs and colours carried into every soft product." tone="white">
+  <h3 class="sub reveal" style="margin-top:0">Sleep and bath</h3>
+  <div class="pairs reveal">{sleep.map((p) => <figure><div><img src={img(p.a)} alt={`${p.t} artwork`} loading="lazy" /><img src={img(p.p)} alt={`Finished ${p.t.toLowerCase()}`} loading="lazy" /></div><figcaption><b>{p.t}</b><span>{p.s}</span></figcaption></figure>)}</div>
+  <h3 class="sub reveal">Toys and décor</h3>
+  <div class="pairs four reveal">{toys.map((p) => <figure><div><img src={img(p.a)} alt={`${p.t} artwork`} loading="lazy" /><img src={img(p.p)} alt={`Finished ${p.t.toLowerCase()}`} loading="lazy" /></div><figcaption><b>{p.t}</b></figcaption></figure>)}</div>
+</Chapter>
+
+<section class="divider">
+  <div class="wrap div-grid">
+    <div>
+      <p class="muted">Chapter 2</p>
+      <h2>The play gym</h2>
+      <p class="lede">A second brief from the client: “Design a shaped play gym for babies aged 0–18 months.”</p>
+    </div>
+    <div class="snow">
+      <div class="arch"><img src={img("gym")} alt="The finished penguin play gym with a white arch and hanging toys" loading="lazy" /></div>
+      <img class="hero-penguin" src={img("penguin")} alt="" /><img class="hero-tree" src={img("tree")} alt="" />
+    </div>
+  </div>
+</section>
+
+<Chapter id="concepts" num="11" title="Two concepts: an angelfish or a penguin" tone="sky">
+  <div class="grid g2 reveal">
+    <div class="card ink concept"><span class="muted small">Concept 2 · Mood: Macilent Critter</span><h3>Underwater angelfish</h3><p class="muted">Angelfish rhythm and scales, in deep blues, greys and a touch of yellow.</p><img src={img("angelfish-sketch")} alt="Angelfish sketches and coloured studies" loading="lazy" /></div>
+    <div class="card ink concept picked"><span class="sticker pink">Selected</span><span class="muted small">Concept 8 · Mood: Manchote</span><h3>Arctic penguin</h3><p class="muted">Fresh, white, snappy and shivery: a penguin-shaped mat in an icy world.</p><img src={img("penguin-sketch")} alt="Penguin sketches developing into the final character" loading="lazy" /></div>
+  </div>
+</Chapter>
+
+<Chapter id="toys" num="12" title="Sensory toys on the arch" lede="Five hanging toys give babies something to reach for, squeeze, crinkle and shake while they lie on the penguin." tone="white">
+  <div class="arch-toys reveal">
+    <svg viewBox="0 0 1000 420" aria-hidden="true" preserveAspectRatio="none"><path d="M60 420 V300 A440 260 0 0 1 940 300 V420" fill="none" stroke="var(--sky-tint)" stroke-width="60" stroke-linecap="round" /><path d="M60 420 V300 A440 260 0 0 1 940 300 V420" fill="none" stroke="var(--sky)" stroke-width="2" stroke-dasharray="2 8" /></svg>
+    {archToys.map((t) => (
+      <div class="hang" style={`left:${t.x}%;--h:${t.h}%`}>
+        <i></i><img src={img(t.img)} alt="" loading="lazy" /><b>{t.t}</b><small>{t.f}</small>
+      </div>
+    ))}
+  </div>
+  <div class="grid g2 reveal" style="margin-top:28px;align-items:center">
+    <img class="rounded" src={img("gym-toys-photo")} alt="Prototype toys lying on the penguin mat" loading="lazy" />
+    <dl class="feel">
+      <div><dt><i style="background:var(--sky-ink)"></i>Squeaker</dt><dd>Penguin, snowball</dd></div>
+      <div><dt><i style="background:var(--edge)"></i>Rattle</dt><dd>Tree, snowflake, snowball</dd></div>
+      <div><dt><i style="background:var(--line)"></i>Crinkle paper</dt><dd>Tree, snowflake</dd></div>
+      <div><dt><i style="background:var(--lemon)"></i>Plush</dt><dd>Soft, textured penguin body</dd></div>
+    </dl>
+  </div>
+</Chapter>
+
+<Chapter id="refine" num="13" title="Refining: cheaper to make, right for an international market" lede="The first prototype changed in two ways after client feedback." tone="pink">
+  <div class="ba-rows reveal">
+    <div class="ba"><img src={img("beak-before")} alt="Prototype 1 with a large, raised yellow beak" loading="lazy" /><p class="fb"><small>Client feedback · The beak</small>Change the beak. This way it costs more, and it is not that appropriate for babies.</p><span class="arr" aria-hidden="true">→</span><figure><img src={img("beak-after")} alt="Final penguin with a flatter beak" loading="lazy" /><figcaption>Final: a flatter beak</figcaption></figure></div>
+    <div class="ba"><img src={img("colour-before")} alt="Prototype 1 in blue and orange" loading="lazy" /><p class="fb"><small>Client feedback · The colours</small>With these colours it looks more suited to the Indian market than the international market.</p><span class="arr" aria-hidden="true">→</span><figure><img src={img("colour-after")} alt="Final penguin mat in greys with mustard" loading="lazy" /><figcaption>Final: greys with mustard</figcaption></figure></div>
+  </div>
+  <div class="card ink reveal" style="margin-top:24px">
+    <h3>The same fine-tuning across the collection</h3>
+    <ul class="ftune"><li><b>Quilt</b>Border made denser, and brought to exactly six colours.</li><li><b>Bumper</b>Borders removed, prints only.</li><li><b>Circular mat</b>One mermaid; jellyfish and seahorse combined; crab given a cover.</li><li><b>Mermaid</b>Simpler, golden-haired, with more innocent eyes.</li></ul>
+  </div>
+</Chapter>
+
+<Chapter id="costing" num="14" title="Costing: line by line, against a $150 limit" lede="Each product was costed against the brief's limit for the whole collection. Figures are in Indian rupees, from her costing sheets." tone="white">
+  <div class="grid g2 reveal">
+    {costs.map((c) => {
+      const max = Math.max(...c.rows.map((r) => r[1] as number));
+      return (
+        <div class="card ink cost">
+          <div class="cost-h"><h3>{c.t}</h3><span>Total <b>{fmt(c.total)}</b></span></div>
+          <ul>{c.rows.map(([k, v]) => <li><span>{k}</span><i style={`width:${((v as number) / max) * 100}%`}></i><b>{fmt(v as number)}</b></li>)}</ul>
+          <p class="muted small" style="margin:10px 0 0">{c.note}</p>
+        </div>
+      );
+    })}
+  </div>
+</Chapter>
+
+<Chapter id="final" num="15" title="The final collection, and the handoff" lede="Quilt, bumpers, shaped cushions, doll, bunting, mobile and more, styled together on the cot; then everything the client needed to take it into production." tone="sky">
+  <div class="final-grid reveal">
+    <img src={img("hero-crib")} alt="The full crib collection under a pink canopy" loading="lazy" />
+    <img src={img("crib-closeup")} alt="Close-up of the shaped cushions and doll in the cot" loading="lazy" />
+    <img src={img("gym")} alt="The final penguin play gym: plush penguin mat, padded arch and five sensory toys" loading="lazy" />
+  </div>
+  <div class="handoff reveal">
+    {handoff.map((h) => (
+      <div class="ho">
+        <div class="ho-img">
+          {h.img && <img src={img(h.img)} alt="" loading="lazy" />}
+          {h.sw && <span class="ho-sw">{palette.map((c) => <i style={`background:${c.h}`}></i>)}</span>}
+          {h.bars && <span class="ho-bars"><i style="width:80%"></i><i style="width:62%"></i><i style="width:48%"></i><i style="width:34%"></i></span>}
+        </div>
+        <b>{h.t}</b><small>{h.d}</small>
+      </div>
+    ))}
+  </div>
+</Chapter>
+
+<section class="back">
+  <div class="wrap">
+    <a class="btn primary back-btn" href={`${base}/`}><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3.5 5.5 9l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to main page</a>
+  </div>
+</section>
+
+</div>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-mat]").forEach((root) => {
+    const btns = [...root.querySelectorAll<HTMLButtonElement>("button[data-r]")];
+    btns.forEach((b) => b.addEventListener("click", () => {
+      const r = b.dataset.r;
+      btns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      root.querySelectorAll<HTMLElement>(".ring").forEach((x) => x.classList.toggle("on", x.dataset.r === r));
+      root.querySelectorAll<HTMLElement>(".mat-what").forEach((x) => (x.hidden = x.dataset.r !== r));
+    }));
+  });
+</script>
+
+<style>
+  .arch { border-radius: 999px 999px 26px 26px; overflow: hidden; border: 1.5px solid var(--edge); background: var(--surface); }
+  .arch img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .arch-hero { position: relative; max-width: 380px; justify-self: center; width: 100%; padding: 0 0 20px 50px; }
+  .arch-hero .arch { aspect-ratio: 3 / 4; }
+  .hero-mermaid { position: absolute; left: -20px; bottom: 10px; width: 46%; filter: drop-shadow(0 8px 14px rgba(60, 50, 100, .18)); }
+  .hero-star { position: absolute; right: 0; bottom: 0; width: 22%; }
+  .lede em { font-style: italic; }
+  .pb-like { font: 400 clamp(1.15rem, 2vw, 1.45rem)/1.45 var(--f-display); max-width: 40em; margin: 0 0 28px; }
+  .arches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 22px; }
+  .arches figure { margin: 0; }
+  .arch.small { aspect-ratio: 4 / 5; }
+  .arches figcaption { margin-top: 8px; font-size: .9rem; line-height: 1.3; }
+  .arches figcaption b, .arches figcaption span { display: block; } .arches figcaption span { color: var(--muted); font-size: .82rem; }
+  @media (max-width: 760px) { .arches { grid-template-columns: 1fr 1fr; } }
+  .theme-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .theme-row span { display: grid; justify-items: center; gap: 2px; font-size: .74rem; color: var(--muted); width: 58px; text-align: center; }
+  .theme-row img { width: 46px; height: 46px; object-fit: contain; }
+  .constraints p { margin: 0 0 12px; color: var(--muted); font-size: .92rem; line-height: 1.4; }
+  .constraints p b { display: block; font: 400 2rem/1 var(--f-display); color: var(--pink-ink); margin-bottom: 4px; }
+  .range { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 20px; }
+  .range .small { margin-right: 6px; }
+  .dots-list { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: .92rem; line-height: 1.45; }
+  .needs svg { width: 100%; max-width: 420px; display: block; margin: 0 auto; }
+  .needs text { font: 700 14px var(--f-body); fill: var(--ink); }
+  .needs .nc { font: 400 20px var(--f-display); }
+  .needs dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; margin: 14px 0 0; font-size: .88rem; }
+  .needs dt { font-weight: 800; } .needs dd { margin: 0; color: var(--muted); }
+  .i2d { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 12px; }
+  .i2d li { display: flex; gap: 14px; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .i2d img { width: 58px; height: 58px; border-radius: 50%; object-fit: cover; flex: none; border: 1.5px solid var(--line); }
+  .i2d b { display: block; font-size: .95rem; } .i2d span { color: var(--muted); font-size: .88rem; }
+  .brand-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .brand-chips span { padding: 6px 14px; border-radius: 999px; background: var(--surface); border: 1.5px solid var(--edge); font-weight: 700; font-size: .9rem; }
+  .num-list { margin: 8px 0 0; padding-left: 22px; display: grid; gap: 6px; }
+  .theme-final { display: grid; align-content: center; }
+  .tf { font: 400 clamp(1.8rem, 3.4vw, 2.6rem)/1.1 var(--f-display); font-style: italic; margin: 6px 0 10px; color: var(--pink-ink); }
+  .mood { margin: 32px 0 0; max-width: 46em; font: 400 clamp(1.1rem, 1.8vw, 1.35rem)/1.5 var(--f-display); font-style: italic; }
+  .mood cite { display: block; font: 400 .85rem var(--f-body); font-style: normal; color: var(--muted); margin-top: 8px; }
+  .keywords { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0; }
+  .keywords span { padding: 12px 20px; border-radius: 999px; background: var(--c); font: 400 1.05rem var(--f-display); font-style: italic; }
+  .palette { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .palette .sw { display: grid; gap: 4px; font-size: .86rem; }
+  .palette i { display: block; aspect-ratio: 1 / 1.2; border-radius: 999px 999px 14px 14px; border: 1.5px solid var(--line); }
+  .palette small { color: var(--muted); font-size: .74rem; line-height: 1.3; }
+  @media (max-width: 760px) { .palette { grid-template-columns: repeat(3, 1fr); } }
+  .evo { display: grid; grid-auto-flow: column; grid-auto-columns: min(70%, 220px); gap: 16px; overflow-x: auto; padding: 4px 4px 16px; scroll-snap-type: x mandatory; }
+  .evo figure { margin: 0; scroll-snap-align: start; display: grid; align-content: start; gap: 10px; }
+  .evo-img { position: relative; aspect-ratio: 4 / 5; background: var(--surface); border-radius: 22px; border: 1.5px solid var(--line); overflow: hidden; }
+  .evo-img img { position: absolute; inset: 8px; width: calc(100% - 16px); height: calc(100% - 16px); object-fit: contain; }
+  .evo-img.duo img:first-child { width: calc(50% - 8px); } .evo-img.duo img:last-child { left: 50%; width: calc(50% - 8px); }
+  .evo .final .evo-img { border-color: var(--mint-ink); }
+  .evo figcaption b { display: block; font-size: .92rem; margin-bottom: 6px; }
+  .evo-n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--pink-ink); color: var(--pink-ink); font-size: .78rem; font-weight: 800; margin-bottom: 6px; }
+  .fb { margin: 8px 0 0; padding: 10px 12px; border-radius: 14px; border: 1.5px solid var(--pink); background: var(--surface); font-size: .84rem; line-height: 1.4; }
+  .fb small { display: block; color: var(--pink-ink); font-weight: 800; font-size: .72rem; margin-bottom: 2px; }
+  .fb.ok { border-color: var(--mint-ink); } .fb.ok small { color: var(--mint-ink); }
+  .sub { margin: 40px 0 8px; font-size: 1.15rem; }
+  .motifs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 16px; }
+  .mg h4 { font-size: .86rem; margin: 0 0 8px; }
+  .mg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .mg-grid img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+  @media (max-width: 860px) { .motifs { grid-template-columns: repeat(2, 1fr); } }
+  .prints { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+  .prints figure { margin: 0; } .prints img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+  .prints figcaption { font-size: .74rem; color: var(--muted); margin-top: 3px; }
+  .trials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+  .trials img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; }
+  .rounds { display: grid; grid-template-columns: 1.4fr 1.2fr .8fr .8fr .8fr; gap: 14px; align-items: start; }
+  .round { display: grid; gap: 6px; }
+  .r-imgs { display: grid; gap: 6px; background: var(--surface); padding: 8px; border-radius: 14px; border: 1.5px solid var(--line); }
+  .r-imgs.n4 { grid-template-columns: 1fr 1fr; } .r-imgs.n2 { grid-template-columns: 1fr 1fr; }
+  .round.ok:last-child .r-imgs { border-color: var(--mint-ink); }
+  .r-imgs img { width: 100%; aspect-ratio: 5 / 6; object-fit: contain; }
+  .round b { font-size: .88rem; }
+  @media (max-width: 900px) { .rounds { grid-template-columns: 1fr 1fr; } }
+  .q-wrap { position: relative; }
+  .q-wrap img { width: 100%; display: block; }
+  .q-n { position: absolute; transform: translate(-50%, -50%); width: 26px; height: 26px; border-radius: 50%; background: var(--surface); border: 1.5px solid var(--mint-ink); color: var(--mint-ink); display: grid; place-items: center; font-size: .78rem; font-weight: 800; }
+  .specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 16px 0; padding: 12px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .specs dt { font-size: .74rem; color: var(--muted); } .specs dd { margin: 0; font-weight: 800; }
+  .qd { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .qd figure { margin: 0; } .qd img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; }
+  .qd figcaption { font-size: .78rem; margin-top: 4px; display: flex; gap: 6px; align-items: center; }
+  .qd figcaption span { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--mint-ink); color: var(--mint-ink); display: grid; place-items: center; font-size: .66rem; font-weight: 800; }
+  .b-steps { display: grid; gap: 18px; }
+  .b-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .b-row img { width: 100%; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+  .b-row.sel img { border: 1.5px solid var(--mint-ink); }
+  .rounded { width: 100%; border-radius: var(--radius); display: block; }
+  .b-row.three img { aspect-ratio: 1; object-fit: cover; }
+  .mat-rounds { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .mr-imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 0; }
+  .mr-imgs img { width: 100%; aspect-ratio: 1; object-fit: contain; background: var(--surface); border-radius: 50%; border: 1px solid var(--line); }
+  @media (max-width: 760px) { .mat-rounds { grid-template-columns: 1fr; } }
+  .mat-play { display: grid; gap: 28px; align-items: center; }
+  @media (min-width: 860px) { .mat-play { grid-template-columns: 1fr 1fr; } }
+  .mat-img { position: relative; max-width: 480px; width: 100%; justify-self: center; }
+  .mat-img img { width: 100%; display: block; }
+  .ring { position: absolute; width: 22%; aspect-ratio: 1; transform: translate(-50%, -50%) scale(.6); border-radius: 50%; border: 3px solid var(--pink-ink); opacity: 0; transition: opacity .25s, transform .3s; pointer-events: none; }
+  .ring.on { opacity: 1; transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 6px color-mix(in srgb, var(--pink) 45%, transparent); }
+  .mat-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .mat-btns button { padding: 9px 16px; border-radius: 999px; border: 1.5px solid var(--edge); background: var(--surface); color: var(--ink); font: 700 .92rem var(--f-body); cursor: url("/cursor-link.svg") 4 4, pointer; }
+  .mat-btns button[aria-pressed="true"] { background: var(--pink); }
+  .mat-what { font: 400 clamp(1.15rem, 2vw, 1.4rem)/1.4 var(--f-display); margin: 18px 0 24px; min-height: 3em; }
+  .printfile { display: flex; gap: 14px; align-items: center; }
+  .printfile img { width: 90px; flex: none; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
+  .printfile p { margin: 0; color: var(--muted); font-size: .9rem; } .printfile b { display: block; color: var(--ink); }
+  .pairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .pairs.four { grid-template-columns: repeat(4, 1fr); }
+  .pairs figure { margin: 0; padding: 10px; border-radius: var(--radius-sm); background: var(--surface); border: 1.5px solid var(--line); }
+  .pairs figure > div { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .pairs img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 8px; background: var(--bg); }
+  .pairs img:first-child { object-fit: contain; }
+  .pairs figcaption { margin-top: 8px; font-size: .88rem; } .pairs figcaption b { display: block; } .pairs figcaption span { color: var(--muted); font-size: .8rem; }
+  @media (max-width: 860px) { .pairs, .pairs.four { grid-template-columns: 1fr 1fr; } }
+  .divider { overflow: hidden; padding: clamp(64px, 9vw, 112px) 0; background: linear-gradient(180deg, #EEF3F8, var(--surface)); }
+  .div-grid { display: grid; gap: 28px; align-items: center; }
+  @media (min-width: 860px) { .div-grid { grid-template-columns: 1fr 1fr; } }
+  .divider h2 { font-size: clamp(2.6rem, 6vw, 4.4rem); font-style: italic; }
+  .snow { position: relative; max-width: 360px; justify-self: center; width: 100%; padding-left: 50px; }
+  .snow .arch { aspect-ratio: 3 / 4; }
+  .hero-penguin { position: absolute; left: -10px; bottom: -10px; width: 38%; }
+  .hero-tree { position: absolute; right: 0; bottom: 0; width: 24%; }
+  .concept img { width: 100%; margin-top: 12px; border-radius: 12px; }
+  .concept.picked { border-color: var(--pink-ink); position: relative; }
+  .concept.picked .sticker { position: absolute; top: -12px; right: 16px; }
+  .arch-toys { position: relative; aspect-ratio: 1000 / 420; max-width: 860px; margin: 0 auto; }
+  .arch-toys svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hang { position: absolute; top: calc(var(--h) - 8%); transform: translateX(-50%); display: grid; justify-items: center; text-align: center; width: clamp(70px, 14vw, 120px); }
+  .hang i { width: 1.5px; height: clamp(30px, 6vw, 60px); background: var(--edge); }
+  .hang img { width: clamp(50px, 8vw, 90px); aspect-ratio: 1; object-fit: contain; margin-top: -2px; filter: drop-shadow(0 2px 4px rgba(60, 50, 100, .25)); }
+  .hang b { font-size: .86rem; } .hang small { color: var(--muted); font-size: .76rem; }
+  .feel { display: grid; gap: 10px; margin: 0; }
+  .feel div { display: grid; grid-template-columns: 150px 1fr; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .feel dt { font-weight: 800; display: flex; align-items: center; gap: 8px; } .feel dd { margin: 0; color: var(--muted); }
+  .feel i { width: 10px; height: 10px; border-radius: 50%; }
+  .ba-rows { display: grid; gap: 18px; }
+  .ba { display: grid; grid-template-columns: 1fr 1.2fr auto 1fr; gap: 16px; align-items: center; padding: 16px; border-radius: var(--radius); background: var(--surface); border: 1.5px solid var(--line); }
+  .ba > img, .ba figure img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 14px; }
+  .ba figure { margin: 0; } .ba figcaption { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+  .ba .arr { color: var(--pink-ink); font-size: 1.5rem; }
+  @media (max-width: 760px) { .ba { grid-template-columns: 1fr; } .ba .arr { transform: rotate(90deg); justify-self: center; } }
+  .ftune { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .ftune li { font-size: .9rem; color: var(--muted); } .ftune b { display: block; color: var(--ink); }
+  @media (max-width: 760px) { .ftune { grid-template-columns: 1fr 1fr; } }
+  .cost-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .cost-h h3 { margin: 0; } .cost-h span { color: var(--muted); font-size: .8rem; }
+  .cost-h b { font: 400 1.6rem var(--f-display); color: var(--pink-ink); margin-left: 4px; }
+  .cost ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+  .cost li { display: grid; grid-template-columns: minmax(130px, 42%) 1fr 54px; gap: 10px; align-items: center; font-size: .84rem; }
+  .cost li i { display: block; height: 8px; border-radius: 99px; background: var(--pink); }
+  .cost li b { text-align: right; font-weight: 700; }
+  .final-grid { display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 12px; }
+  .final-grid img { width: 100%; height: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: var(--radius-sm); }
+  @media (max-width: 760px) { .final-grid { grid-template-columns: 1fr 1fr; } .final-grid img:nth-child(2) { grid-column: 1 / -1; aspect-ratio: 4 / 3; order: -1; } }
+  .handoff { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-top: 24px; }
+  .ho { padding: 10px; border-radius: var(--radius-sm); background: var(--surface); border: 1.5px solid var(--line); }
+  .ho-img { aspect-ratio: 1; border-radius: 10px; background: var(--bg); overflow: hidden; display: grid; place-items: center; margin-bottom: 8px; }
+  .ho-img img { width: 100%; height: 100%; object-fit: cover; }
+  .ho-sw { display: flex; gap: 4px; } .ho-sw i { width: 12px; height: 36px; border-radius: 99px; border: 1px solid var(--line); }
+  .ho-bars { display: grid; gap: 6px; width: 70%; } .ho-bars i { height: 8px; border-radius: 99px; background: var(--pink); }
+  .ho b { display: block; font-size: .86rem; } .ho small { color: var(--muted); font-size: .76rem; }
+  @media (max-width: 900px) { .handoff { grid-template-columns: repeat(3, 1fr); } }
+</style>

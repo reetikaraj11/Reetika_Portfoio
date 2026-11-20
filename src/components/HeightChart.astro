@@ -1,0 +1,56 @@
+---
+/* Observed comfort at the café's fixed 125 cm table by height group (Habitat Study p.23). Scale: 1.25px per cm, ground y=270. */
+const fig = (cx: number, top: number, fill: string) => {
+  const head = 15, body = top + 2 * head + 4;
+  const legTop = 270 - (270 - top) * 0.4;
+  return { cx, top, head, body, legTop, fill };
+};
+const people = [
+  { ...fig(80, 108, "var(--bad)"), label: "Child", sub: "under 5 ft" },
+  { ...fig(210, 88, "var(--bad)"), label: "Short adult", sub: "under 5 ft" },
+  { ...fig(495, 73, "var(--mid)"), label: "Adult", sub: "5 ft – 5′5″" },
+  { ...fig(600, 51, "var(--good)"), label: "Tall adult", sub: "over 5′5″" },
+];
+---
+<div class="card ink heights">
+  <svg viewBox="0 0 760 320" role="img" aria-label="Figures of different heights beside a 125 cm café table. Under 5 ft and wheelchair users: difficult. 5 ft to 5 ft 5: moderate discomfort. Over 5 ft 5: comfortable.">
+    <line x1="20" y1="270" x2="740" y2="270" stroke="var(--edge)" stroke-width="2.5" stroke-linecap="round" />
+    <line x1="20" y1="113.75" x2="740" y2="113.75" stroke="var(--lav-ink)" stroke-width="2" stroke-dasharray="7 7" />
+    <text x="20" y="97" font-family="var(--f-hand)" font-size="19" fill="var(--lav-ink)">café table · 125 cm</text>
+    <rect x="640" y="108" width="90" height="10" rx="5" fill="var(--edge)" />
+    <rect x="681" y="118" width="8" height="148" rx="3" fill="var(--edge)" />
+    <ellipse cx="685" cy="268" rx="26" ry="4" fill="var(--edge)" />
+    {people.map((p) => (
+      <g>
+        <circle cx={p.cx} cy={p.top + p.head} r={p.head} fill={p.fill} stroke="var(--edge)" stroke-width="2" />
+        <rect x={p.cx - 19} y={p.top + 2 * p.head + 3} width="38" height={p.legTop - (p.top + 2 * p.head + 3) + 8} rx="17" fill={p.fill} stroke="var(--edge)" stroke-width="2" />
+        <rect x={p.cx - 15} y={p.legTop} width="12" height={270 - p.legTop} rx="5" fill={p.fill} stroke="var(--edge)" stroke-width="2" />
+        <rect x={p.cx + 3} y={p.legTop} width="12" height={270 - p.legTop} rx="5" fill={p.fill} stroke="var(--edge)" stroke-width="2" />
+        <text x={p.cx} y="292" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">{p.label}<tspan x={p.cx} dy="16" font-weight="400" fill="var(--muted)">{p.sub}</tspan></text>
+      </g>
+    ))}
+    <!-- wheelchair user -->
+    <g>
+      <circle cx="340" cy="244" r="25" fill="none" stroke="var(--edge)" stroke-width="3" />
+      <circle cx="388" cy="262" r="8" fill="none" stroke="var(--edge)" stroke-width="3" />
+      <path d="M322 214 L 322 170 M322 214 L 380 214 L 388 254" fill="none" stroke="var(--edge)" stroke-width="3" stroke-linecap="round" />
+      <circle cx="345" cy="132" r="15" fill="var(--bad)" stroke="var(--edge)" stroke-width="2" />
+      <rect x="328" y="150" width="36" height="64" rx="16" fill="var(--bad)" stroke="var(--edge)" stroke-width="2" />
+      <rect x="350" y="200" width="44" height="12" rx="6" fill="var(--bad)" stroke="var(--edge)" stroke-width="2" />
+      <rect x="384" y="200" width="12" height="52" rx="5" fill="var(--bad)" stroke="var(--edge)" stroke-width="2" />
+      <text x="352" y="292" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)" font-family="var(--f-body)">Wheelchair user<tspan x="352" dy="16" font-weight="400" fill="var(--muted)">seated</tspan></text>
+    </g>
+  </svg>
+  <div class="legend">
+    <span><i style="background:var(--bad)"></i>Difficult</span>
+    <span><i style="background:var(--mid)"></i>Moderate discomfort</span>
+    <span><i style="background:var(--good)"></i>Comfortable</span>
+  </div>
+</div>
+<style>
+  .heights { display: flex; flex-direction: column; justify-content: center; }
+  .heights svg { width: 100%; height: auto; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .9rem; margin-top: 8px; }
+  .legend i { display: inline-block; width: 14px; height: 14px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; border: 1.5px solid var(--edge); }
+  @media (max-width: 640px) { .heights { padding: 14px; overflow-x: auto; } .heights svg { min-width: 560px; } }
+</style>

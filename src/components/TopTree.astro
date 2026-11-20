@@ -1,0 +1,70 @@
+---
+/*
+  Top-down tree of rounded boxes joined by curved arrows (like a sitemap).
+  Arrows are drawn from real box positions and redrawn on resize.
+  Below 760px it becomes an indented vertical tree.
+*/
+import TopNode, { type TopTreeNode } from "./TopNode.astro";
+interface Props { root: TopTreeNode; label?: string; }
+const { root, label } = Astro.props;
+const uid = `tt${Math.random().toString(36).slice(2, 7)}`;
+---
+<div class="ttree" data-ttree role="group" aria-label={label ?? root.label}>
+  <svg class="tt-lines" aria-hidden="true"><defs><marker id={`${uid}-a`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" /></marker></defs><g></g></svg>
+  <TopNode node={root} path={uid} depth={0} />
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-ttree]").forEach((root) => {
+    const svg = root.querySelector<SVGSVGElement>(".tt-lines")!;
+    const g = svg.querySelector("g")!;
+    const mid = svg.querySelector("marker")!.id;
+    const draw = () => {
+      if (getComputedStyle(svg).display === "none") return;
+      const box = root.getBoundingClientRect();
+      svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+      let out = "";
+      root.querySelectorAll<HTMLElement>("[data-p]").forEach((el) => {
+        if (!el.dataset.p) return;
+        const parent = root.querySelector<HTMLElement>(`.tt-box[data-id="${el.dataset.p}"]`);
+        if (!parent) return;
+        const a = parent.getBoundingClientRect(), b = el.getBoundingClientRect();
+        const sx = a.left + a.width / 2 - box.left, sy = a.bottom - box.top;
+        const ex = b.left + b.width / 2 - box.left, ey = b.top - box.top - 2;
+        const my = sy + (ey - sy) * 0.5;
+        out += `<path d="M${sx.toFixed(1)} ${sy.toFixed(1)} C${sx.toFixed(1)} ${(my + 10).toFixed(1)} ${ex.toFixed(1)} ${(my - 10).toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}" marker-end="url(#${mid})"/>`;
+      });
+      g.innerHTML = out;
+    };
+    new ResizeObserver(draw).observe(root);
+    document.fonts?.ready.then(draw);
+    draw();
+  });
+</script>
+
+<style>
+  .ttree { position: relative; padding: 6px 0 10px; }
+  .tt-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .tt-lines :global(path) { fill: none; stroke: var(--ink); stroke-width: 1.5; opacity: .75; }
+  .tt-lines :global(marker path) { fill: var(--ink); stroke: none; }
+  .ttree :global(.tt-node) { display: flex; flex-direction: column; align-items: center; }
+  .ttree :global(.tt-kids) { display: flex; justify-content: center; gap: clamp(10px, 1.6vw, 22px); margin-top: 56px; }
+  .ttree :global(.tt-box) { position: relative; z-index: 1; min-width: 108px; max-width: 200px; padding: 10px 18px; text-align: center; border: 1.5px solid var(--ink); border-radius: 999px; background: var(--surface); line-height: 1.25; font-size: .92rem; }
+  .ttree :global(.d0 > .tt-box) { padding: 12px 28px; font: 400 1.3rem/1.15 var(--f-display); max-width: 280px; }
+  .ttree :global(.tt-box small) { display: block; color: var(--muted); font-size: .78rem; margin-top: 2px; }
+  .ttree :global(.tt-box.chosen) { background: var(--accent); }
+  .ttree :global(.tt-box.dropped) { border-style: dashed; color: var(--muted); }
+  .ttree :global(.tt-flag) { display: block; font-style: normal; font-size: .7rem; font-weight: 800; margin-top: 3px; color: var(--accent-ink); }
+  .ttree :global(.tt-box.dropped .tt-flag) { color: var(--muted); }
+  .ttree :global(.tt-list) { position: relative; z-index: 1; list-style: none; margin: 40px 0 0; padding: 10px 14px; border: 1.5px solid var(--edge); border-radius: 16px; background: var(--surface); display: grid; gap: 4px; font-size: .84rem; min-width: 150px; }
+  .ttree :global(.tt-list li) { padding: 3px 0; border-bottom: 1px dashed var(--line); }
+  .ttree :global(.tt-list li:last-child) { border-bottom: 0; }
+
+  @media (max-width: 759px) {
+    .tt-lines { display: none; }
+    .ttree :global(.tt-node) { align-items: flex-start; }
+    .ttree :global(.tt-kids) { flex-direction: column; margin: 10px 0 0 14px; padding-left: 16px; border-left: 1.5px solid color-mix(in srgb, var(--edge) 50%, transparent); gap: 10px; }
+    .ttree :global(.tt-box) { text-align: left; max-width: none; }
+    .ttree :global(.tt-list) { margin: 8px 0 0 14px; }
+  }
+</style>

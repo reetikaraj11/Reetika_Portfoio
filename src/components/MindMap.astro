@@ -1,0 +1,129 @@
+---
+/*
+  Two-sided mind map: centre → branches → groups → leaves, joined by curved lines
+  drawn in JS from the real element positions (redrawn on resize). Below 1000px it
+  turns into an indented tree list.
+*/
+interface Group { label: string; items: string[]; }
+interface Branch { label: string; tag?: string; groups: Group[]; }
+interface Props { center: string; left: Branch[]; right: Branch[]; }
+const { center, left, right } = Astro.props;
+let uid = 0;
+const id = () => `mm${uid++}`;
+const tag = (side: "l" | "r", list: Branch[]) => list.map((b) => ({ ...b, id: id(), side, groups: b.groups.map((g) => ({ ...g, id: id() })) }));
+const L = tag("l", left), R = tag("r", right);
+---
+<div class="mm reveal" data-mm>
+  <div class="mm-desk">
+    <svg class="mm-lines" aria-hidden="true"></svg>
+    <div class="mm-side left">
+      {L.map((b) => (
+        <div class="mm-branch">
+          <div class="mm-groups">
+            {b.groups.map((g) => (
+              <div class="mm-group">
+                <ul class="mm-items">{g.items.map((it) => <li><span data-p={g.id}>{it}</span></li>)}</ul>
+                <span class="mm-g" data-id={g.id} data-p={b.id}>{g.label}</span>
+              </div>
+            ))}
+          </div>
+          <span class="mm-b" data-id={b.id} data-p="c">{b.tag && <em>{b.tag}</em>}{b.label}</span>
+        </div>
+      ))}
+    </div>
+    <div class="mm-center" data-id="c">{center}</div>
+    <div class="mm-side right">
+      {R.map((b) => (
+        <div class="mm-branch">
+          <span class="mm-b" data-id={b.id} data-p="c">{b.tag && <em>{b.tag}</em>}{b.label}</span>
+          <div class="mm-groups">
+            {b.groups.map((g) => (
+              <div class="mm-group">
+                <span class="mm-g" data-id={g.id} data-p={b.id}>{g.label}</span>
+                <ul class="mm-items">{g.items.map((it) => <li><span data-p={g.id}>{it}</span></li>)}</ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="mm-mob">
+    <p class="mm-root">{center}</p>
+    <ul>
+      {[...L, ...R].map((b) => (
+        <li>
+          <details open>
+            <summary>{b.tag && <em>{b.tag}</em>}{b.label}</summary>
+            <ul>{b.groups.map((g) => <li><b>{g.label}</b><span>{g.items.join(" · ")}</span></li>)}</ul>
+          </details>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-mm]").forEach((root) => {
+    const desk = root.querySelector<HTMLElement>(".mm-desk")!;
+    const svg = desk.querySelector<SVGSVGElement>(".mm-lines")!;
+    const draw = () => {
+      if (getComputedStyle(desk).display === "none") return;
+      const box = desk.getBoundingClientRect();
+      svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+      let out = "";
+      desk.querySelectorAll<HTMLElement>("[data-p]").forEach((el) => {
+        const parent = desk.querySelector<HTMLElement>(`[data-id="${el.dataset.p}"]`);
+        if (!parent) return;
+        const a = el.getBoundingClientRect(), b = parent.getBoundingClientRect();
+        const isLeft = !!el.closest(".left");
+        const sx = (isLeft ? a.right + 6 : a.left - 6) - box.left, sy = a.top + a.height / 2 - box.top;
+        const ex = (isLeft ? b.left - 6 : b.right + 6) - box.left, ey = b.top + b.height / 2 - box.top;
+        const mx = (sx + ex) / 2;
+        const lvl = el.classList.contains("mm-b") ? "b" : el.classList.contains("mm-g") ? "g" : "i";
+        out += `<path class="l-${lvl}" d="M${sx.toFixed(1)} ${sy.toFixed(1)} C${mx.toFixed(1)} ${sy.toFixed(1)} ${mx.toFixed(1)} ${ey.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}"/>`;
+      });
+      svg.innerHTML = out;
+    };
+    new ResizeObserver(draw).observe(desk);
+    document.fonts?.ready.then(draw);
+    draw();
+  });
+</script>
+
+<style>
+  .mm-desk { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 30px; padding: 10px 0; }
+  .mm-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .mm-lines :global(path) { fill: none; stroke: var(--edge); stroke-linecap: round; }
+  .mm-lines :global(.l-b) { stroke: var(--accent-ink); stroke-width: 2.6; opacity: .55; }
+  .mm-lines :global(.l-g) { stroke-width: 2.2; opacity: .45; }
+  .mm-lines :global(.l-i) { stroke-width: 1.6; opacity: .32; }
+  .mm-side { display: grid; gap: 34px; position: relative; }
+  .mm-branch { display: flex; align-items: center; gap: 30px; }
+  .left .mm-branch { justify-content: flex-end; }
+  .mm-groups { display: grid; gap: 14px; }
+  .mm-group { display: flex; align-items: center; gap: 26px; }
+  .left .mm-group { justify-content: flex-end; }
+  .mm-items { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; width: 168px; }
+  .left .mm-items { text-align: right; }
+  .mm-items span { font-size: .8rem; line-height: 1.25; color: var(--accent-ink); display: inline-block; }
+  .mm-g { width: 96px; font-weight: 700; font-size: .86rem; line-height: 1.2; color: var(--ink); }
+  .left .mm-g { text-align: right; }
+  .mm-b { width: 126px; font: 800 .98rem/1.2 var(--f-head); color: var(--ink); }
+  .left .mm-b { text-align: right; }
+  .mm-b em, .mm-mob em { display: block; font: 800 .68rem var(--f-body); font-style: normal; letter-spacing: .1em; color: var(--accent-ink); margin-bottom: 3px; }
+  .mm-center { position: relative; z-index: 1; width: 150px; padding: 22px 16px; text-align: center; font: 800 1.25rem/1.15 var(--f-head); color: var(--ink); background: var(--surface); border: 2px solid var(--edge); border-radius: 18px; box-shadow: 0 10px 30px -18px rgba(60, 50, 100, .45); }
+
+  .mm-mob { display: none; }
+  .mm-root { display: inline-block; margin: 0 0 12px; padding: 10px 16px; font: 800 1.1rem var(--f-head); background: var(--surface); border: 2px solid var(--edge); border-radius: 14px; }
+  .mm-mob ul { list-style: none; margin: 0; padding-left: 18px; border-left: 2px solid color-mix(in srgb, var(--edge) 35%, transparent); }
+  .mm-mob > ul { margin-left: 18px; }
+  .mm-mob li { position: relative; padding: 6px 0 6px 14px; }
+  .mm-mob li::before { content: ""; position: absolute; left: -18px; top: 18px; width: 26px; border-top: 2px solid color-mix(in srgb, var(--edge) 35%, transparent); }
+  .mm-mob summary { cursor: url("/cursor-link.svg") 4 4, pointer; font: 800 1rem var(--f-head); }
+  .mm-mob details ul { margin-top: 6px; }
+  .mm-mob b { display: block; font-size: .9rem; }
+  .mm-mob span { font-size: .85rem; color: var(--accent-ink); line-height: 1.4; }
+  @media (max-width: 999px) { .mm-desk { display: none; } .mm-mob { display: block; } }
+</style>

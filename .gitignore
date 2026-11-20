@@ -1,0 +1,23 @@
+# Build output (Netlify rebuilds this on every push)
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Logs and local environment
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.env
+.env.*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Private working notes (not part of the site)
+prompts.md

@@ -1,0 +1,446 @@
+---
+import Base from "../../layouts/Base.astro";
+import Chapter from "../../components/Chapter.astro";
+import Stat from "../../components/Stat.astro";
+import Quote from "../../components/Quote.astro";
+import Fig from "../../components/Fig.astro";
+import Methodology from "../../components/Methodology.astro";
+import MindMap from "../../components/MindMap.astro";
+import Hotspots from "../../components/Hotspots.astro";
+import PostureTabs from "../../components/PostureTabs.astro";
+import "../../styles/case.css";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const img = (n: string) => `/work/aasan/${n}.webp`;
+
+/* ---------- data (Aasan deck; slide refs in comments) ---------- */
+const method = [
+  { label: "Student survey", sub: "up to 35 students" }, { label: "Role-play", sub: "3 student stories" },
+  { label: "Requirements", sub: "needs → metrics" }, { label: "Market & competitor", sub: "kneeling chair study" },
+  { label: "Reframing", sub: "SNPS & functions" }, { label: "Brainstorm", sub: "4 kinds of comfort" },
+  { label: "Concepts & FMEA", sub: "morphological chart" }, { label: "Simulation", sub: "Autodesk Fusion" },
+  { label: "Prototype & trials", sub: "6 postures tested" },
+];
+// p2 (20 answers)
+const postures = [{ k: "Upright", v: 60 }, { k: "Leaning forward", v: 45 }, { k: "Reclined", v: 40 }, { k: "Cross-legged", v: 35 }, { k: "Sideways leaning", v: 15 }];
+// p3 (22 answers)
+const items = [{ k: "Laptop", v: 90.9 }, { k: "Notebook", v: 68.2 }, { k: "Textbooks", v: 36.4 }, { k: "Tablet / iPad", v: 31.8 }, { k: "Calculator", v: 31.8 }];
+// p2–p6
+const wants = [
+  { group: "Body", tone: "sky", rows: [{ k: "Seat-height adjustment", v: 88.6 }, { k: "Adjustable lumbar support", v: 72.7 }, { k: "Breathable mesh backrest", v: 54.3 }, { k: "Soft seat cushion", v: 51.4 }] },
+  { group: "Desk", tone: "lemon", rows: [{ k: "Desk distance adjusts", v: 83.3 }, { k: "Pad locks firmly in use", v: 71.4 }, { k: "Large: laptop + notebook", v: 65.7 }, { k: "Fold-over pad for entry/exit", v: 62.9 }] },
+  { group: "Movement", tone: "mint", rows: [{ k: "Lightweight, easy to move", v: 77.1 }, { k: "360° swivel seat", v: 71.4 }, { k: "Open C-shaped armrests", v: 68.2 }, { k: "Knee/foot controls usable seated", v: 54.3 }] },
+];
+// p6
+const price = [{ k: "Below ₹2,000", v: 31.4 }, { k: "₹2,000–3,000", v: 31.4 }, { k: "₹3,000–3,500", v: 25.7 }, { k: "Above ₹3,500", v: 11.4 }];
+// p21–22
+const weights = [{ k: "Height adjustability", w: 28 }, { k: "Upright posture", w: 23 }, { k: "Lean back", w: 17 }, { k: "Leg folding", w: 17 }, { k: "Durability", w: 9 }, { k: "Cost", w: 6 }, { k: "Aesthetics", w: 0 }];
+// p45–47
+const fmea = [
+  { part: "Foldable side desk", mode: "Collapses while in use", s: 8, o: 5, fix: "Dual lock with an audible click, 15 kg load test, reinforced hinge" },
+  { part: "Foldable side desk", mode: "Too small for laptop and extras", s: 6, o: 7, fix: "At least 400 × 300 mm, 5 mm raised lip, non-slip surface" },
+  { part: "Foldable side desk", mode: "Wobbles when writing", s: 7, o: 5, fix: "Rigid metal arm, triangular bracing, desk ≥ 12 mm thick" },
+  { part: "Gas lift", mode: "Seat drops suddenly", s: 9, o: 3, fix: "Certified Class 4 cylinder rated 150 kg, 100,000+ cycles" },
+  { part: "Backrest tilt", mode: "Angle adjustment fails", s: 6, o: 5, fix: "Metal tilt mechanism, 5+ lock positions, stainless springs" },
+  { part: "Seat cushion", mode: "Foam compresses and loses shape", s: 5, o: 8, fix: "High-density foam (≥ 50 kg/m³), ventilated, 50,000-cycle test" },
+];
+// p63
+const cost = [
+  { k: "Seat cushion", v: 700, c: "var(--sky)" }, { k: "Mesh backrest", v: 550, c: "var(--lav)" }, { k: "Main metal frame", v: 500, c: "var(--mint)" },
+  { k: "Writing surface", v: 450, c: "var(--lemon)" }, { k: "5-star base & castors", v: 450, c: "var(--pink)" }, { k: "Knee rest platform", v: 350, c: "#C9C2E8" },
+  { k: "Gas lift", v: 300, c: "#BFE0EF" }, { k: "Hardware & assembly", v: 200, c: "#E3DFEE" },
+];
+const total = cost.reduce((a, b) => a + b.v, 0);
+// p36–41
+const mmLeft = [
+  { tag: "C3", label: "Easy transitions between postures", groups: [
+    { label: "Physical", items: ["Multi-position backrest", "360° swivel seat", "C-shaped open armrests"] },
+    { label: "Cognitive", items: ["Easy-reach levers", "Position presets", "Visual & tactile cues"] },
+    { label: "Environmental", items: ["Lockable low-friction castors", "Anti-slip base", "Wide anti-tip footprint"] },
+    { label: "Social", items: ["Suits every flexibility range", "Open geometry", "Many sitting styles"] },
+  ] },
+  { tag: "Adjustment", label: "Adaptive working posture", groups: [
+    { label: "Physical", items: ["Sliding writing surface", "Tilting writing pad", "Height-adjustable footrest"] },
+    { label: "Cognitive", items: ["Side-access lever", "One-hand adjustment", "Study / laptop / relax modes"] },
+    { label: "Environmental", items: ["360° rotating base", "Low-resistance castors", "Shock-absorbing frame"] },
+    { label: "Social", items: ["Fits different bodies", "Turn sideways easily", "Quiet adjustment"] },
+  ] },
+];
+const mmRight = [
+  { tag: "C1", label: "Organising study materials", groups: [
+    { label: "Physical", items: ["Large rigid writing surface", "Dual-surface layout", "Tablet / laptop clamp", "Tilt-adjustable surface", "Anti-glare finish", "Storage underneath"] },
+    { label: "Environmental", items: ["Stable writing surface", "Noise-free hinge", "Anti-vibration mechanism", "Foldable extensions"] },
+    { label: "Cognitive", items: ["Sectional layout", "Quick-access storage", "Secure-lock mechanism", "Magnetic accessory holder"] },
+    { label: "Social", items: ["Expandable surface", "Rounded corners", "Tablet & stylus support", "Bag hooks"] },
+  ] },
+];
+const spots = [
+  { x: 70, y: 29, title: "Fold-over writing desk", text: "Big enough for a laptop and a notebook; turns over to the side so you can get in and out." },
+  { x: 11, y: 44, title: "C-shaped open armrest", text: "The open loop leaves room for crossed legs instead of blocking them." },
+  { x: 36, y: 21, title: "Mesh backrest", text: "Breathable mesh with a lower-back curve for long sessions." },
+  { x: 57, y: 46, title: "Cushioned seat", text: "Foam seat that stays comfortable over a long day of classes." },
+  { x: 44, y: 62, title: "Gas-lift height adjustment", text: "Set the seat height for your body, from a seated position." },
+  { x: 74, y: 70, title: "Footrest & knee rest", text: "Rest your feet, or use it as knee and lower-leg support when sitting forward." },
+  { x: 26, y: 83, title: "Swivel base on castors", text: "Turn 360° and roll between desk, lab table and group discussions." },
+];
+const trials = [
+  { label: "Upright", img: img("trial-no-footrest"), alt: "Tester sitting upright with the desk in front, feet on the floor", title: "Upright, feet on the floor", text: "The everyday study posture: desk turned in front, back against the mesh.", tags: ["Without footrest"] },
+  { label: "Upright + footrest", img: img("trial-upright-footrest"), alt: "Tester sitting upright with feet on the footrest", title: "Feet up on the footrest", text: "Resting the feet takes load off the lower legs, the fix for Rohit's dangling feet.", tags: ["Footrest"] },
+  { label: "Recline", img: img("trial-recline"), alt: "Tester leaning back with feet on the footrest", title: "Lean back between tasks", text: "Footrest and recline together give a relaxed position for reading or a short break.", tags: ["Footrest", "Recline"] },
+  { label: "Knee support", img: img("trial-knee"), alt: "Tester typing on a laptop with knees resting on the footrest platform", title: "Footrest as knee support", text: "Sitting forward to type, the platform doubles as knee and lower-leg support.", tags: ["Knee rest", "Laptop"] },
+  { label: "Cross-legged", img: img("trial-crossleg-arm"), alt: "Tester sitting cross-legged with the C-shaped armrests clear of his legs", title: "Cross-legged, legs free", text: "The C-shaped hand rest stays clear of the knees, solving the complaint 40.9% of surveyed students had.", tags: ["C-shaped armrest"] },
+  { label: "Cross-legged + laptop", img: img("trial-crossleg"), alt: "Tester sitting cross-legged while typing on a laptop on the desk", title: "Working cross-legged", text: "Laptop on the desk while sitting cross-legged: the posture many students actually use.", tags: ["Laptop", "Cross-legged"] },
+];
+---
+<Base title="Aasan · Reetika Raj" description="Case study: Aasan, an ergonomic classroom chair with a fold-over desk, open armrests and a footrest that lets students sit their way.">
+<div class="case" style="--accent:var(--sky);--accent-ink:var(--sky-ink);--accent-tint:var(--sky-tint)">
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Aasan: sit your way</h1>
+      <p class="lede">Students sit upright, lean forward, recline and cross their legs, often for hours. Classroom chairs assume just one of those. Aasan is a study chair designed around all of them.</p>
+      <div class="hero-tags">
+        <span class="sticker sky">Survey</span><span class="sticker pink">Role-play</span><span class="sticker lav">FMEA</span><span class="sticker mint">FEA</span><span class="sticker">Prototype</span>
+      </div>
+    </div>
+    <div class="hero-chair">
+      <img src={`${base}${img("chair-cutout")}`} alt="The Aasan chair: black mesh back, fold-over wooden desk, C-shaped armrests and a footrest platform on a five-star swivel base" loading="eager" />
+      <div class="hero-note"><svg width="46" height="34" viewBox="0 0 46 34" aria-hidden="true"><path d="M40 30 C 30 28, 14 22, 8 6 M8 6 L4 16 M8 6 L16 12" fill="none" stroke="var(--sky-ink)" stroke-width="2.5" stroke-linecap="round"/></svg><span class="hand">a real, working prototype</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= AT A GLANCE ================= -->
+<section class="glance">
+  <div class="wrap">
+    <div class="grid g3 reveal">
+      <div class="card ink tl"><span class="sticker pink">Problem</span><p>Fixed classroom chairs cause back pain, block crossed legs and give students a writing pad too small for a laptop and a notebook.</p></div>
+      <div class="card ink tl"><span class="sticker sky">Approach</span><p>Surveyed students, role-played three of them, set measurable targets, studied a kneeling chair, brainstormed by critical function, then ran FMEA and FEA.</p></div>
+      <div class="card ink tl"><span class="sticker mint">Outcome</span><p>A working chair with a fold-over desk, open C-shaped armrests and a footrest that doubles as knee support, costed at ₹3,500.</p></div>
+    </div>
+    <div class="grid g4 stats reveal">
+      <Stat num="35" label="students surveyed about how they sit and study" tone="sky" />
+      <Stat num="88.6%" label="want to adjust the seat height" tone="lemon" />
+      <Stat num="40.9%" label="sit cross-legged and find armrests block their legs" tone="pink" />
+      <Stat num="₹3,500" label="estimated cost, vs ₹11,800 for the kneeling chair we studied" tone="mint" />
+    </div>
+  </div>
+</section>
+
+<!-- ================= METHODOLOGY ================= -->
+<Chapter id="method" title="Methodology: how Aasan came together" lede="Nine steps, from talking to students to sitting in the finished chair." tone="white">
+  <Methodology steps={method} />
+</Chapter>
+
+<!-- ================= 01 POSTURES ================= -->
+<Chapter id="sitting" num="01" title="How students really sit: nobody sits one way" lede="Students told us they sit anywhere from a few hours to 12 hours a day. Asked how they sit, most picked more than one posture, and nearly everyone studies with a laptop." tone="plain">
+  <div class="grid g2 reveal">
+    <div class="card ink">
+      <h3>Postures used over long sessions</h3>
+      <p class="muted small">Share of students choosing each (20 answers, more than one allowed)</p>
+      <ul class="bars">{postures.map((p) => <li><span class="bl">{p.k}</span><span class="bt"><span class="bf" style={`width:${p.v}%`}></span></span><span class="bv">{p.v}%</span></li>)}</ul>
+    </div>
+    <div class="card ink">
+      <h3>What's on the desk</h3>
+      <p class="muted small">Items used while studying (22 answers)</p>
+      <ul class="bars">{items.map((p) => <li><span class="bl">{p.k}</span><span class="bt"><span class="bf alt" style={`width:${p.v}%`}></span></span><span class="bv">{p.v}%</span></li>)}</ul>
+    </div>
+  </div>
+  <p class="callout reveal"><b>40.9%</b> of students sit cross-legged and say the armrests get in the way. Another 18.2% sit cross-legged without that problem.</p>
+</Chapter>
+
+<!-- ================= 02 SURVEY ================= -->
+<Chapter id="survey" num="02" title="What students asked for, in numbers" lede="We asked what would make a study chair better. Up to 35 students answered; the earliest questions had about 20." tone="sky">
+  <div class="grid g3 reveal">
+    {wants.map((g) => (
+      <div class="card ink">
+        <span class:list={["sticker", g.tone]}>{g.group}</span>
+        <ul class="meters">
+          {g.rows.map((r) => <li><div class="m-top"><span>{r.k}</span><b>{r.v}%</b></div><span class="bt"><span class="bf" style={`width:${r.v}%`}></span></span></li>)}
+        </ul>
+      </div>
+    ))}
+  </div>
+  <div class="card ink price reveal">
+    <h3>“What's a fair price for a good study chair?”</h3>
+    <div class="stack-bar" role="img" aria-label={price.map((p) => `${p.k}: ${p.v}%`).join(", ")}>
+      {price.map((p, i) => <span style={`flex:${p.v};background:${["var(--mint)", "var(--sky)", "var(--lemon)", "var(--pink)"][i]}`}><b>{p.v}%</b></span>)}
+    </div>
+    <div class="legend">{price.map((p, i) => <span><i style={`background:${["var(--mint)", "var(--sky)", "var(--lemon)", "var(--pink)"][i]}`}></i>{p.k}</span>)}</div>
+    <p class="muted small" style="margin:10px 0 0">88.5% put a fair price at ₹3,500 or less, which became our cost target.</p>
+  </div>
+</Chapter>
+
+<!-- ================= 03 VOICES ================= -->
+<Chapter id="voices" num="03" title="Role-play: three students, three kinds of discomfort" lede="We wrote first-person stories for three students who use study chairs very differently." tone="plain">
+  <div class="grid g3 reveal">
+    <Quote who="rohit" name="Rohit" meta="engineering student, exam season" tags={["Back pain", "Legs blocked", "Feet dangle"]}>
+      When I sit for more than 7–8 hours, my lower back starts hurting badly. … The armrests block my legs when I try to sit cross-legged.
+    </Quote>
+    <Quote who="ananya" name="Ananya" meta="B.Com student in online classes" tags={["Pad too small", "Can't adjust", "Hard to exit"]}>
+      When I'm using my laptop and notebook together, the writing pad is so small that everything keeps falling.
+    </Quote>
+    <Quote who="vikram" name="Vikram" meta="diploma student, moves between labs" tags={["Too heavy", "No swivel", "Tight budget"]}>
+      The current chair is so heavy that dragging it scratches the floor. … A rotating seat would help because right now I have to twist my whole body when switching between the board and the table.
+    </Quote>
+  </div>
+</Chapter>
+
+<!-- ================= 04 REQUIREMENTS ================= -->
+<Chapter id="requirements" num="04" title="From needs to numbers: turning complaints into design targets" lede="Each student need became a measurable target we could design and test against." tone="white">
+  <div class="translate reveal">
+    <div class="tr-row"><p class="say">“The armrests block my legs.”</p><span class="arr" aria-hidden="true">→</span><p class="need">Room to fold the legs</p><span class="arr" aria-hidden="true">→</span><p class="metric">Clearance around seat and armrests for sitting <b>cross-legged</b> without obstruction</p></div>
+    <div class="tr-row"><p class="say">“Everything keeps falling off the pad.”</p><span class="arr" aria-hidden="true">→</span><p class="need">A desk for laptop + notebook</p><span class="arr" aria-hidden="true">→</span><p class="metric">Turn-over tabletop of at least <b>50 × 35 cm</b> holding <b>10 kg</b>, depth adjustable by <b>15 cm</b></p></div>
+    <div class="tr-row"><p class="say">“My feet dangle.”</p><span class="arr" aria-hidden="true">→</span><p class="need">Fits every student's body</p><span class="arr" aria-hidden="true">→</span><p class="metric">Height adjustable for users <b>150–185 cm</b>, sized to <b>5th–95th percentile</b> data; knee support at <b>50°</b></p></div>
+    <div class="tr-row"><p class="say">“I wish the backrest supported me.”</p><span class="arr" aria-hidden="true">→</span><p class="need">Upright and reclined, both supported</p><span class="arr" aria-hidden="true">→</span><p class="metric">Recline at <b>105–115°</b>; <b>90°</b> at hips and knees upright; seat foam <b>≥ 5 cm</b></p></div>
+    <div class="tr-row"><p class="say">“Strong enough not to break, not too costly.”</p><span class="arr" aria-hidden="true">→</span><p class="need">Durable and affordable</p><span class="arr" aria-hidden="true">→</span><p class="metric">BIFMA X5.1 static load <b>≥ 1100 N</b>; cost <b>≤ ₹3,500</b> per chair</p></div>
+  </div>
+  <div class="grid g2 reveal" style="margin-top:32px">
+    <div class="card ink">
+      <h3>Demands <span class="muted">— must have</span></h3>
+      <ul class="ticks"><li>Serves students of every size</li><li>Lumbar support that fits the spine</li><li>Foldable desk for laptop and notebook</li><li>Lower-leg support for upright sitting</li><li>Adjustable height</li><li>Soft seat for long hours</li><li>Strong, stable and durable</li></ul>
+    </div>
+    <div class="card ink">
+      <h3>What matters most</h3>
+      <p class="muted small">Weights for the wishes (out of 100), matrix method</p>
+      <ul class="bars">{weights.map((w) => <li><span class="bl">{w.k}</span><span class="bt"><span class="bf alt" style={`width:${(w.w / 28) * 100}%`}></span></span><span class="bv">{w.w}</span></li>)}</ul>
+    </div>
+  </div>
+</Chapter>
+
+<!-- ================= 05 MARKET ================= -->
+<Chapter id="market" num="05" title="Is it worth making? Millions of students, all sitting" lede="Ergonomic study chairs are a fast-growing market, and India alone needs tens of millions of chairs a year." tone="lemon">
+  <div class="grid g4 reveal">
+    <Stat num="$10.8 B" label="global ergonomic study chair market (2024), heading to $19.2 B by 2033" tone="sky" />
+    <Stat num="$570 M" label="India's ergonomic chair market (2022), projected $1.18 B by 2030" tone="lav" />
+    <Stat num="~266 M" label="students in India, home and classroom" tone="mint" />
+    <Stat num="~38 M" label="chairs a year needed in India, a ₹72,000 cr opportunity over a replacement cycle" tone="pink" />
+  </div>
+</Chapter>
+
+<!-- ================= 06 COMPETITOR ================= -->
+<Chapter id="competitor" num="06" title="Learning from a kneeling chair: what a ₹11,800 chair still gets wrong" lede="We ran an Innovation Situation Questionnaire on a popular posture chair: a kneeling chair with an angled seat, shin pads and an X-frame." tone="plain">
+  <div class="grid g-12 reveal">
+    <figure class="comp card ink">
+      <img src={`${base}${img("competitor")}`} alt="A kneeling posture chair with a mesh headrest, angled seat, shin pad and X-shaped frame on castors" loading="lazy" />
+      <figcaption><b>Kneeling posture chair</b><br /><span class="muted">≈ ₹11,800 · seat 53–79 cm · 3-inch foam</span><br /><span class="muted small">Product image from the manufacturer</span></figcaption>
+    </figure>
+    <div class="probs">
+      <div class="prob"><b>Shin pressure</b><span>Small pads concentrate weight on the shins, causing numbness over time.</span></div>
+      <div class="prob"><b>Fixed seat angle</b><span>The hip angle can't change, and may not match the desk, so the neck bends.</span></div>
+      <div class="prob"><b>No back support</b><span>Upright sitting relies on core muscles, which tire in long sessions.</span></div>
+      <div class="prob"><b>Height, not geometry</b><span>Raising the seat doesn't change the seat-to-shin relationship for short or tall users.</span></div>
+      <div class="prob"><b>Awkward entry and exit</b><span>Users have to step around the shin pads to sit down or get up.</span></div>
+      <div class="prob"><b>Unstable when reaching</b><span>Reaching forward shifts the weight and can tip the X-frame.</span></div>
+    </div>
+  </div>
+  <div class="analog reveal">
+    <span class="hand">others have tried…</span>
+    <span class="chip">Balans kneeling chairs</span><span class="chip">Forward-tilt office chairs</span><span class="chip">Saddle stools</span><span class="chip">Rocking kneeling chairs</span><span class="chip">Heavy-duty adjustable kneelers</span>
+  </div>
+</Chapter>
+
+<!-- ================= 07 REFRAME ================= -->
+<Chapter id="reframe" num="07" title="Reframing: from pain points to must-haves" lede="We mapped where students start, what the chair must do, and where they should end up." tone="mint">
+  <div class="io reveal">
+    <div class="io-col io-in"><h3>Today</h3><ul><li>Back pain</li><li>Legs blocked</li><li>Small, wobbly writing pad</li><li>Fatigue from poor posture</li><li>Chair hard to move</li><li>No adjustability</li><li>Hot, flat cushions</li><li>Hard to turn or get out</li></ul></div>
+    <span class="arr" aria-hidden="true">→</span>
+    <div class="io-col io-mid"><h3>The chair must</h3><ol><li>Adjust in height</li><li>Support the lower back</li><li>Offer a large, rigid desk</li><li>Let the desk slide or fold</li><li>Have open armrests</li><li>Have an adjustable footrest</li><li>Swivel 360° on lockable castors</li><li>Breathe: mesh and moulded foam</li><li>Be cheap to make</li></ol></div>
+    <span class="arr" aria-hidden="true">→</span>
+    <div class="io-col io-out"><h3>Tomorrow</h3><ul><li>Comfortable for 7–8+ hours</li><li>Works for every body</li><li>Freedom to change posture</li><li>Better focus</li><li>Safe, stable rotation</li><li>Room for laptop and notebook</li><li>Durable and hygienic</li></ul></div>
+  </div>
+  <div class="grid g2 reveal" style="margin-top:32px">
+    <div class="card ink snps">
+      <span class="sticker">Solution-neutral problem statement</span>
+      <p>“Facilitate sustained comfort, postural health, and productive engagement for students during extended seated activities (5–6+ hours daily), irrespective of their physical dimensions, postural preferences, or movement needs, while ensuring economic viability and long-term durability within educational environments.”</p>
+    </div>
+    <ol class="ladder">
+      <li><span class="lv">Level 3 · Abstract</span>Everyone can take part in long learning sessions without physical barriers to health, comfort or productivity.</li>
+      <li><span class="lv">Level 2 · Functional</span>Enable sustained comfort and postural support during long, stationary learning activities.</li>
+      <li><span class="lv">Level 1 · Contextual</span>Support students' bodies and comfort during 5–6 hour study sessions.</li>
+    </ol>
+  </div>
+</Chapter>
+
+<!-- ================= 08 JOURNEY ================= -->
+<Chapter id="journey" num="08" title="A day in the chair: what happens now, and what should" lede="Observing students in class showed where today's chairs force them to compensate." tone="white">
+  <div class="jgrid reveal">
+    {[
+      ["Fit", "Fixed-size chairs; students contort to fit", "Chair adapts to the 5th–95th percentile"],
+      ["Legs", "Supports block knees under the desk", "Open space and open armrests"],
+      ["Back", "No lumbar support → slouching", "Lower back follows the spine's curve"],
+      ["Desk", "Pull the chair closer, again and again", "Desk distance adjusts"],
+      ["Tired legs", "No footrest → numbness", "Adjustable footrest and knee support"],
+      ["Turning", "Drag the chair or twist the body", "360° swivel on smooth castors"],
+    ].map(([step, now, next]) => <div class="jcol"><b>{step}</b><p class="j-now">{now}</p><p class="j-next">{next}</p></div>)}
+  </div>
+  <div class="grid g3 reveal" style="margin-top:28px">
+    <div class="cf"><span class="sticker sky">C1</span><h3>Organise study materials</h3><p class="muted">Support laptop, notebook and accessories within reach.</p></div>
+    <div class="cf"><span class="sticker lav">C2</span><h3>Stay safe under load</h3><p class="muted">Keep the structure stable under static and dynamic loading.</p></div>
+    <div class="cf"><span class="sticker mint">C3</span><h3>Move between postures</h3><p class="muted">Make switching postures easy and comfortable.</p></div>
+  </div>
+  <p class="muted small center reveal" style="margin-top:12px">The three critical functions that came out of the desired function structure.</p>
+</Chapter>
+
+<!-- ================= 09 BRAINSTORM ================= -->
+<Chapter id="brainstorm" num="09" title="Brainstorm: ideas, branch by branch" lede="For each critical function we brainstormed across physical, cognitive, environmental and social comfort. Here's a selection." tone="plain">
+  <div class="reveal"><MindMap center="Aasan brainstorm" left={mmLeft} right={mmRight} /></div>
+</Chapter>
+
+<!-- ================= 10 CONCEPTS ================= -->
+<Chapter id="concepts" num="10" title="Concepts: mixing ideas into two chairs" lede="A morphological chart crossed four options for each function. Two combinations were sketched." tone="sky">
+  <div class="morph card ink reveal">
+    <table>
+      <thead><tr><th scope="col">Function</th><th scope="col">Option A</th><th scope="col">Option B</th><th scope="col">Option C</th><th scope="col">Option D</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Organise materials</th><td class="on">Foldable side desk</td><td>Storage basket underneath</td><td>Magnetic accessory holder</td><td>Tablet / phone slots</td></tr>
+        <tr><th scope="row">Positional adjustment</th><td class="on">Adjustable seat height & backrest</td><td>360° swivel base</td><td>Lower-leg support & footrest</td><td>Reclining backrest with locks</td></tr>
+        <tr><th scope="row">Posture transitions</th><td class="on">Lower-leg support & footrest</td><td>Backrest that moves with you</td><td class="alt">Memory-foam cushioning</td><td>Breathable mesh</td></tr>
+      </tbody>
+    </table>
+    <p class="muted small" style="margin:10px 0 0"><b>Combination 1</b> takes the three highlighted options; <b>Combination 2</b> swaps the leg support for memory foam (dashed).</p>
+  </div>
+  <div class="grid g2 reveal">
+    <Fig src={img("concept-1")} alt="Pencil sketch of combination 1: office chair with a side desk and a footrest platform" ratio="1/1" stage="white" caption="<b>Combination 1</b> — side desk, adjustable seat and backrest, lower-leg support and footrest. <b>Taken forward.</b>" />
+    <Fig src={img("concept-2")} alt="Pencil sketch of combination 2: office chair with a side desk and thick cushioning, no footrest" ratio="1/1" stage="white" caption="<b>Combination 2</b> — side desk, adjustable seat and backrest, memory-foam cushioning." />
+  </div>
+</Chapter>
+
+<!-- ================= 11 FMEA ================= -->
+<Chapter id="fmea" num="11" title="Designing out failure: what could go wrong, fixed in advance" lede="A failure-mode analysis of Combination 1 scored each risk and gave it a design change." tone="pink">
+  <div class="card ink fmea reveal">
+    <table>
+      <thead><tr><th scope="col">Part</th><th scope="col">Failure mode</th><th scope="col" class="n">Severity</th><th scope="col" class="n">Occurrence</th><th scope="col" class="n">Risk</th><th scope="col">Design change</th></tr></thead>
+      <tbody>{fmea.map((f) => <tr><th scope="row">{f.part}</th><td>{f.mode}</td><td class="n"><span class="heat" style={`--h:${f.s / 10}`}>{f.s}</span></td><td class="n"><span class="heat" style={`--h:${f.o / 10}`}>{f.o}</span></td><td class="n"><b>{f.s * f.o}</b></td><td>{f.fix}</td></tr>)}</tbody>
+    </table>
+    <p class="muted small" style="margin:12px 0 0">Risk = severity × occurrence, each scored 1–10.</p>
+  </div>
+  <div class="grid g2 reveal" style="margin-top:24px">
+    <Fig src={img("final-sketch")} alt="Final concept sketch: mesh chair with fold-over desk and footrest" ratio="3/4" stage="white" caption="Final concept after FMEA — sketch" />
+    <Fig src={img("final-model")} alt="3D model of the final concept with a side desk, cushioned seat and footrest on a blue base" ratio="3/4" stage="white" caption="…and as a 3D model" />
+  </div>
+</Chapter>
+
+<!-- ================= 12 SIMULATION ================= -->
+<Chapter id="simulation" num="12" title="Simulation: checking the parts that take the load" lede="We simulated the two parts students lean on most: the desk on its C-shaped arm, and the lower-leg rest." tone="white">
+  <div class="grid g2 reveal">
+    <Fig src={img("fea-desk-stress")} alt="Stress plot of the desk on the C-shaped arm, mostly blue with higher stress at the arm's bend" ratio="2/1" fit="contain" stage="white" caption="<b>Desk on C-shaped arm:</b> 500 N pressing on the desk. Peak stress 26.5 MPa against an allowable 207 MPa; about 1 mm of deflection." />
+    <Fig src={img("fea-leg-stress")} alt="Stress plot of the lower-leg rest, low stress on the board and higher on its support arm" ratio="2/1" fit="contain" stage="white" caption="<b>Lower-leg rest:</b> 1000 N on the polypropylene board. Peak stress 54.8 MPa against an allowable 78 MPa; about 0.7 mm of deflection." />
+  </div>
+  <div class="grid g3 reveal" style="margin-top:24px">
+    <Stat num="7.8×" label="margin on the desk arm (207 ÷ 26.5 MPa)" tone="mint" />
+    <Stat num="1.4×" label="margin on the leg rest (78 ÷ 54.8 MPa)" tone="lemon" />
+    <Stat num="~1 mm" label="maximum deflection on either part under load" tone="sky" />
+  </div>
+</Chapter>
+
+<!-- ================= 13 PROTOTYPE ================= -->
+<Chapter id="prototype" num="13" title="The prototype: meet Aasan" lede="We built a working chair. Hover or tap the numbers to explore it." tone="sky">
+  <div class="reveal"><Hotspots src={img("chair-cutout")} alt="The Aasan prototype chair" spots={spots} /></div>
+  <div class="studio reveal">
+    {["studio-a", "studio-b", "studio-c", "studio-d", "studio-e"].map((n, i) => (
+      <img src={`${base}${img(n)}`} alt={["Front view with the desk swung aside", "Front view with the desk in front", "Side view with the desk and footrest", "Desk folded down beside the chair", "Side view, desk raised"][i]} loading="lazy" />
+    ))}
+  </div>
+</Chapter>
+
+<!-- ================= 14 TRIALS ================= -->
+<Chapter id="trials" num="14" title="Sit your way: six postures, one chair" lede="We tested the prototype in the postures students told us they use." tone="plain">
+  <div class="reveal"><PostureTabs items={trials} /></div>
+</Chapter>
+
+<!-- ================= 15 COST ================= -->
+<Chapter id="cost" num="15" title={`Cost: ₹${total.toLocaleString("en-IN")}, right on target`} lede="Eight parts, costed for prototyping and transport, hit the price most students called fair." tone="lemon">
+  <div class="card ink reveal">
+    <div class="stack-bar tall" role="img" aria-label={cost.map((c) => `${c.k} ₹${c.v}`).join(", ")}>
+      {cost.map((c) => <span style={`flex:${c.v};background:${c.c}`}><b>₹{c.v}</b></span>)}
+    </div>
+    <div class="legend">{cost.map((c) => <span><i style={`background:${c.c}`}></i>{c.k} <b>₹{c.v}</b></span>)}</div>
+  </div>
+  <div class="grid g3 reveal" style="margin-top:20px">
+    <Stat num={`₹${total.toLocaleString("en-IN")}`} label="per chair, the target from our requirements" tone="mint" />
+    <Stat num="₹11,800" label="for the kneeling chair we studied" tone="pink" />
+    <Stat num="88.5%" label="of students called ₹3,500 or less a fair price" tone="sky" />
+  </div>
+</Chapter>
+
+<!-- ================= 16 REFLECTION ================= -->
+<Chapter id="reflect" num="16" title="Outcome and reflection: what we built, and what I learned" tone="mint">
+  <div class="grid g2 reveal">
+    <div class="card ink">
+      <h3>Outcome</h3>
+      <ul class="ticks">
+        <li>A working study chair that supports upright, reclined, knee-supported and cross-legged sitting</li>
+        <li>A fold-over desk sized for a laptop and a notebook</li>
+        <li>Load-bearing parts checked in simulation</li>
+        <li>Costed at ₹3,500, a third of the competitor we studied</li>
+      </ul>
+    </div>
+    <div class="card ink">
+      <h3>What I learned</h3>
+      <ul class="ticks">
+        <li><b>Ask how people really sit.</b> The survey showed postures change through the day, so one fixed shape can't work.</li>
+        <li><b>Study the best alternative.</b> The kneeling chair showed that fixing one posture can create new problems.</li>
+        <li><b>One part, two jobs.</b> The footrest also works as knee support.</li>
+        <li><b>Next:</b> test with more students of different heights over full class days.</li>
+      </ul>
+    </div>
+  </div>
+</Chapter>
+
+<section class="back">
+  <div class="wrap">
+    <a class="btn primary back-btn" href={`${base}/`}><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3.5 5.5 9l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to main page</a>
+  </div>
+</section>
+
+</div>
+</Base>
+
+<style>
+  .hero-chair { position: relative; max-width: 440px; justify-self: center; width: 100%; }
+  .hero-chair img { width: 100%; aspect-ratio: 992/1400; object-fit: contain; background: radial-gradient(circle at 50% 45%, var(--surface) 0, var(--sky-tint) 65%, transparent 72%); }
+  .callout { margin: 24px 0 0; padding: 18px 22px; border-radius: var(--radius-sm); background: var(--pink-tint); max-width: 760px; }
+  .callout b { font: 800 1.3rem var(--f-head); }
+  .meters { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 14px; }
+  .m-top { display: flex; justify-content: space-between; gap: 10px; font-size: .93rem; margin-bottom: 5px; }
+  .m-top b { font-family: var(--f-head); }
+  .meters .bt { display: block; height: 12px; }
+  .price { margin-top: 20px; }
+  .stack-bar { display: flex; height: 42px; border-radius: 999px; overflow: hidden; border: 1.5px solid var(--edge); }
+  .stack-bar.tall { height: 56px; }
+  .stack-bar span { display: grid; place-items: center; min-width: 0; border-right: 1.5px solid var(--surface); }
+  .stack-bar span:last-child { border-right: 0; }
+  .stack-bar b { font-size: .82rem; white-space: nowrap; overflow: hidden; }
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .88rem; margin-top: 12px; }
+  .legend i { display: inline-block; width: 13px; height: 13px; border-radius: 50%; margin-right: 6px; vertical-align: -2px; border: 1.5px solid var(--edge); }
+  .comp { margin: 0; display: grid; gap: 12px; align-content: start; }
+  .comp img { width: 100%; max-height: 300px; object-fit: contain; }
+  .comp figcaption { font-size: .92rem; line-height: 1.5; }
+  .probs { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); align-content: start; }
+  .prob { padding: 14px 16px; border-radius: var(--radius-sm); background: var(--surface); border: 1.5px solid var(--line); }
+  .prob b { display: block; }
+  .prob b::before { content: "✕ "; color: var(--pink-ink); }
+  .prob span { color: var(--muted); font-size: .92rem; line-height: 1.45; }
+  .analog { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 22px; }
+  .io { display: grid; gap: 14px; align-items: stretch; }
+  @media (min-width: 900px) { .io { grid-template-columns: 1fr auto 1.15fr auto 1fr; } }
+  .io-col { padding: 18px 20px; border-radius: var(--radius); border: 1.5px solid var(--edge); }
+  .io-col h3 { margin-bottom: 8px; }
+  .io-col ul, .io-col ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; font-size: .93rem; }
+  .io-in { background: var(--pink-tint); }
+  .io-mid { background: var(--surface); }
+  .io-out { background: var(--mint-tint); }
+  .io .arr { align-self: center; justify-self: center; }
+  @media (max-width: 899px) { .io .arr { transform: rotate(90deg); } }
+  .cf { padding: 18px 20px; border-radius: var(--radius-sm); background: var(--surface); border: 1.5px solid var(--edge); }
+  .cf h3 { margin: 10px 0 4px; }
+  .cf p { margin: 0; }
+  .case .morph td.alt { background: transparent; outline: 2px dashed var(--accent-ink); outline-offset: -2px; font-weight: 700; }
+  @media (max-width: 640px) { .stack-bar.tall b { display: none; } }
+  .studio { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 32px; align-items: end; }
+  .studio img { width: 100%; height: auto; }
+  @media (max-width: 700px) { .studio { grid-template-columns: repeat(3, 1fr); } .studio img:nth-child(n+4) { display: none; } }
+</style>

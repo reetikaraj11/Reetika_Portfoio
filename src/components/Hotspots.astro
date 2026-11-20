@@ -1,0 +1,49 @@
+---
+/* Numbered feature dots on an image, linked to a list. Hover, focus or tap a dot or a list item to highlight both. */
+interface Spot { x: number; y: number; title: string; text: string; }
+interface Props { src: string; alt: string; spots: Spot[]; ratio?: string; }
+const { src, alt, spots, ratio = "992/1400" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+---
+<div class="hs" data-hs>
+  <div class="hs-img" style={`aspect-ratio:${ratio}`}>
+    <img src={`${base}${src}`} alt={alt} loading="lazy" decoding="async" />
+    <div class="hs-area">
+    {spots.map((s, i) => (
+      <button type="button" class="hs-dot" style={`left:${s.x}%;top:${s.y}%`} data-i={i} aria-label={`${i + 1}: ${s.title}`}>{i + 1}</button>
+    ))}
+    </div>
+  </div>
+  <ol class="hs-list">
+    {spots.map((s, i) => (
+      <li data-i={i} tabindex="0"><span class="hs-n">{i + 1}</span><div><b>{s.title}</b><p>{s.text}</p></div></li>
+    ))}
+  </ol>
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>("[data-hs]").forEach((root) => {
+    const items = [...root.querySelectorAll<HTMLElement>("[data-i]")];
+    const set = (i: string | null) => items.forEach((el) => el.classList.toggle("on", el.dataset.i === i));
+    items.forEach((el) => {
+      ["mouseenter", "focus", "click"].forEach((ev) => el.addEventListener(ev, () => set(el.dataset.i!)));
+    });
+    root.addEventListener("mouseleave", () => set(null));
+  });
+</script>
+<style>
+  .hs { display: grid; gap: 28px; align-items: center; }
+  @media (min-width: 860px) { .hs { grid-template-columns: 1fr 1fr; } }
+  .hs-img { position: relative; max-width: 460px; width: 100%; margin: 0 auto; border-radius: var(--radius); background: radial-gradient(circle at 50% 45%, var(--surface), var(--accent-tint) 70%); }
+  .hs-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 4%; }
+  .hs-area { position: absolute; inset: 4%; }
+  .hs-dot { position: absolute; transform: translate(-50%, -50%); width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--surface); background: var(--accent-ink); color: #fff; font: 800 .85rem var(--f-body); cursor: url("/cursor-link.svg") 4 4, pointer; box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-ink) 50%, transparent); animation: hs-pulse 2.4s infinite; transition: transform .2s, background .2s; }
+  .hs-dot.on, .hs-dot:hover { transform: translate(-50%, -50%) scale(1.18); background: var(--ink); animation: none; }
+  @keyframes hs-pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent-ink) 45%, transparent); } 70%, 100% { box-shadow: 0 0 0 12px transparent; } }
+  .hs-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .hs-list li { display: flex; gap: 14px; align-items: flex-start; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--surface); border: 1.5px solid var(--line); cursor: url("/cursor.svg") 4 4, default; transition: border-color .2s, transform .2s; }
+  .hs-list li.on { border-color: var(--accent-ink); transform: translateX(4px); }
+  .hs-n { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent-tint); color: var(--accent-ink); font-weight: 800; font-size: .85rem; }
+  .hs-list b { display: block; }
+  .hs-list p { margin: 2px 0 0; color: var(--muted); font-size: .92rem; line-height: 1.45; }
+  @media (prefers-reduced-motion: reduce) { .hs-dot { animation: none; } }
+</style>

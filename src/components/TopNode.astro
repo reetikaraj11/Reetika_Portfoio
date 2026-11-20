@@ -1,0 +1,23 @@
+---
+/* One node of a TopTree (recursive). "list" children render as one stacked box. */
+export interface TopTreeNode { label: string; note?: string; state?: "chosen" | "dropped"; list?: string[]; children?: TopTreeNode[]; }
+interface Props { node: TopTreeNode; parent?: string; path: string; depth: number; }
+const { node, parent, path, depth } = Astro.props;
+const kids = node.children ?? [];
+---
+<div class:list={["tt-node", `d${depth}`]}>
+  <div class:list={["tt-box", node.state]} data-id={path} data-p={parent}>
+    <span>{node.label}</span>
+    {node.note && <small>{node.note}</small>}
+    {node.state === "chosen" && <em class="tt-flag">chosen</em>}
+    {node.state === "dropped" && <em class="tt-flag">tested, set aside</em>}
+  </div>
+  {node.list && (
+    <ul class="tt-list" data-id={`${path}-l`} data-p={path}>{node.list.map((x) => <li>{x}</li>)}</ul>
+  )}
+  {kids.length > 0 && (
+    <div class="tt-kids">
+      {kids.map((k, i) => <Astro.self node={k} parent={path} path={`${path}-${i}`} depth={depth + 1} />)}
+    </div>
+  )}
+</div>

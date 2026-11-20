@@ -1,0 +1,83 @@
+---
+/*
+  Annotated product diagram: labels in columns on both sides of the image, each joined
+  to its part by a leader line (drawn from real positions, redrawn on resize).
+  Hovering or focusing a label highlights its line. Below 860px: image, then a list.
+*/
+interface Spot { x: number; y: number; title: string; text: string; side: "l" | "r"; }
+interface Props { src: string; alt: string; spots: Spot[]; ratio: string; }
+const { src, alt, spots, ratio } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const tagged = spots.map((s, i) => ({ ...s, i }));
+const L = tagged.filter((s) => s.side === "l").sort((a, b) => a.y - b.y);
+const R = tagged.filter((s) => s.side === "r").sort((a, b) => a.y - b.y);
+---
+<div class="co" data-co>
+  <svg class="co-lines" aria-hidden="true"></svg>
+  <ul class="co-col l">
+    {L.map((s) => <li tabindex="0" data-i={s.i}><b>{s.title}</b><span>{s.text}</span></li>)}
+  </ul>
+  <div class="co-img" style={`aspect-ratio:${ratio}`}>
+    <img src={`${base}${src}`} alt={alt} loading="lazy" decoding="async" />
+    {tagged.map((s) => <i class="co-pt" data-pt={s.i} data-side={s.side} style={`left:${s.x}%;top:${s.y}%`}></i>)}
+  </div>
+  <ul class="co-col r">
+    {R.map((s) => <li tabindex="0" data-i={s.i}><b>{s.title}</b><span>{s.text}</span></li>)}
+  </ul>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-co]").forEach((root) => {
+    const svg = root.querySelector<SVGSVGElement>(".co-lines")!;
+    const labels = [...root.querySelectorAll<HTMLElement>("li[data-i]")];
+    const draw = () => {
+      if (getComputedStyle(svg).display === "none") return;
+      const box = root.getBoundingClientRect();
+      svg.setAttribute("viewBox", `0 0 ${box.width} ${box.height}`);
+      svg.innerHTML = labels.map((li) => {
+        const pt = root.querySelector<HTMLElement>(`[data-pt="${li.dataset.i}"]`)!;
+        const a = li.getBoundingClientRect(), p = pt.getBoundingClientRect();
+        const left = li.closest(".l") !== null;
+        const sx = (left ? a.right + 8 : a.left - 8) - box.left, sy = a.top + 13 - box.top;
+        const ex = p.left + p.width / 2 - box.left, ey = p.top + p.height / 2 - box.top;
+        const kx = sx + (left ? 18 : -18);
+        return `<path data-l="${li.dataset.i}" d="M${sx.toFixed(1)} ${sy.toFixed(1)} H${kx.toFixed(1)} L${ex.toFixed(1)} ${ey.toFixed(1)}"/>`;
+      }).join("");
+    };
+    const on = (i: string | null) => {
+      labels.forEach((l) => l.classList.toggle("on", l.dataset.i === i));
+      svg.querySelectorAll("path").forEach((p) => p.classList.toggle("on", p.getAttribute("data-l") === i));
+      root.querySelectorAll<HTMLElement>(".co-pt").forEach((p) => p.classList.toggle("on", p.dataset.pt === i));
+    };
+    labels.forEach((l) => { l.addEventListener("mouseenter", () => on(l.dataset.i!)); l.addEventListener("focus", () => on(l.dataset.i!)); });
+    root.addEventListener("mouseleave", () => on(null));
+    new ResizeObserver(draw).observe(root);
+    root.querySelector("img")?.addEventListener("load", draw);
+    draw();
+  });
+</script>
+
+<style>
+  .co { position: relative; display: grid; grid-template-columns: 1fr minmax(260px, 400px) 1fr; gap: clamp(28px, 4vw, 56px); align-items: center; }
+  .co-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 2; }
+  .co-lines :global(path) { fill: none; stroke: var(--ink); stroke-width: 1.1; opacity: .55; transition: opacity .2s, stroke-width .2s; }
+  .co-lines :global(path.on) { opacity: 1; stroke-width: 2; stroke: var(--accent-ink); }
+  .co-col { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(18px, 3vw, 34px); }
+  .co-col.l { text-align: right; }
+  .co-col li { line-height: 1.35; outline-offset: 4px; }
+  .co-col b { display: block; font-size: .98rem; }
+  .co-col span { display: block; color: var(--muted); font-size: .86rem; }
+  .co-col li.on b { color: var(--accent-ink); }
+  .co-img { position: relative; border-radius: var(--radius); overflow: hidden; }
+  .co-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .co-pt { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%; background: var(--ink); border: 2px solid var(--surface); z-index: 3; transition: transform .2s; }
+  .co-pt.on { transform: scale(1.6); background: var(--accent-ink); }
+
+  @media (max-width: 859px) {
+    .co { grid-template-columns: 1fr; gap: 18px; }
+    .co-lines, .co-pt { display: none; }
+    .co-img { order: -1; max-width: 360px; width: 100%; justify-self: center; }
+    .co-col, .co-col.l { text-align: left; gap: 12px; }
+    .co-col li { padding: 10px 14px; border-radius: var(--radius-sm); background: var(--surface); border: 1.5px solid var(--line); }
+  }
+</style>

@@ -1,0 +1,99 @@
+---
+/*
+  Drawn Posture Buddy (cardboard puppy with a screen face). Mood drives the face and glow (the ears are fixed):
+  data-mood = happy | info | warn | alert. Optional scenario buttons switch the message.
+  Other scripts can set mood/message by changing data-mood and the .b-msg text.
+*/
+interface Scenario { label: string; msg: string; mood: "happy" | "info" | "warn" | "alert"; note?: string; }
+interface Props { scenarios?: Scenario[]; mood?: Scenario["mood"]; msg?: string; size?: number; id?: string; }
+const { scenarios = [], mood = scenarios[0]?.mood ?? "happy", msg = scenarios[0]?.msg ?? "Hi! Sitting well?", size = 300, id } = Astro.props;
+---
+<div class="buddy-wrap" data-buddy-wrap>
+  <div class="buddy" data-buddy data-mood={mood} id={id} style={`--bw:${size}px`} role="img" aria-label={`Posture Buddy showing: ${msg}`}>
+    <svg viewBox="0 0 240 250" aria-hidden="true">
+      <!-- glow strip -->
+      <rect class="b-glow" x="56" y="26" width="164" height="128" rx="10" />
+      <!-- far ear -->
+      <path class="b-ear b-ear-r" d="M200 34 l22 -14 l4 40 z" />
+      <!-- body -->
+      <path class="b-card" d="M92 150 L176 150 L196 226 L72 226 Z" />
+      <path class="b-shade" d="M150 150 L176 150 L196 226 L162 226 Z" />
+      <rect class="b-card" x="66" y="212" width="54" height="26" rx="6" />
+      <rect class="b-card" x="150" y="212" width="54" height="26" rx="6" />
+      <path class="b-tail" d="M74 196 q-26 -6 -30 -30" />
+      <rect class="b-dark" x="116" y="168" width="38" height="8" rx="2" />
+      <!-- head -->
+      <rect class="b-card" x="60" y="30" width="156" height="120" rx="8" />
+      <rect class="b-shade" x="60" y="30" width="14" height="120" rx="6" />
+      <circle class="b-dark" cx="160" cy="40" r="4" />
+      <rect class="b-screen" x="84" y="48" width="118" height="76" rx="6" />
+      <rect class="b-dark" x="108" y="132" width="16" height="8" rx="2" /><rect class="b-dark" x="150" y="132" width="16" height="8" rx="2" />
+      <!-- near ear -->
+      <g class="b-ear b-ear-l"><path d="M64 36 L26 96 Q22 104 30 108 L44 112 L82 44 Z" /></g>
+      <!-- face on screen -->
+      <g class="b-face">
+        <path class="f-happy" d="M128 74 q5 -5 10 0 M150 74 q5 -5 10 0" />
+        <g class="f-open"><circle cx="133" cy="73" r="3.4" /><circle cx="155" cy="73" r="3.4" /></g>
+        <path class="f-brow" d="M126 66 l12 3 M162 66 l-12 3" />
+        <path class="f-smile" d="M136 84 q8 7 16 0" />
+        <path class="f-flat" d="M137 87 q7 -4 14 0" />
+      </g>
+    </svg>
+    <p class="b-msg" aria-live="polite">{msg}</p>
+  </div>
+  {scenarios.length > 0 && (
+    <div class="b-controls" role="group" aria-label="Choose a moment in the day">
+      {scenarios.map((s, i) => (
+        <button type="button" aria-pressed={i === 0 ? "true" : "false"} data-msg={s.msg} data-mood={s.mood} data-note={s.note ?? ""}>{s.label}</button>
+      ))}
+      <p class="b-note muted">{scenarios[0]?.note}</p>
+    </div>
+  )}
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-buddy-wrap]").forEach((wrap) => {
+    const buddy = wrap.querySelector<HTMLElement>("[data-buddy]")!;
+    const msg = buddy.querySelector<HTMLElement>(".b-msg")!;
+    const note = wrap.querySelector<HTMLElement>(".b-note");
+    const btns = [...wrap.querySelectorAll<HTMLButtonElement>(".b-controls button")];
+    btns.forEach((b) => b.addEventListener("click", () => {
+      btns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      buddy.dataset.mood = b.dataset.mood!; msg.textContent = b.dataset.msg!;
+      buddy.setAttribute("aria-label", `Posture Buddy showing: ${b.dataset.msg}`);
+      if (note) note.textContent = b.dataset.note || "";
+    }));
+  });
+</script>
+
+<style>
+  .buddy-wrap { display: grid; gap: 22px; justify-items: center; }
+  .buddy { --card: #DDAE72; --shade: #C9955A; --line: #2E4A55; --glow: transparent; position: relative; width: min(100%, var(--bw)); aspect-ratio: 240 / 250; }
+  .buddy svg { width: 100%; height: 100%; overflow: visible; }
+  .buddy svg * { stroke: var(--line); stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+  .b-card, .b-ear path, .b-ear-r { fill: var(--card); }
+  .b-shade { fill: var(--shade); stroke: none !important; }
+  .b-dark { fill: var(--line); stroke: none !important; }
+  .b-screen { fill: #FCEFD6; }
+  .b-tail { fill: none; stroke-width: 9 !important; stroke: var(--card) !important; }
+  .b-glow { fill: none; stroke: var(--glow) !important; stroke-width: 10 !important; filter: blur(6px); transition: stroke .4s; }
+  .b-face path, .b-face circle { fill: none; transition: opacity .25s; }
+  .f-open circle { fill: var(--line); stroke: none !important; }
+  .f-open, .f-brow, .f-flat { opacity: 0; }
+  .b-msg { position: absolute; left: 36%; right: 17%; top: 37%; margin: 0; text-align: center; font: 700 clamp(.62rem, calc(var(--bw) * .045), .95rem)/1.15 var(--f-hand); color: var(--line); }
+
+  .buddy[data-mood="info"] { --glow: #8FC7E8; }
+  .buddy[data-mood="info"] .f-happy { opacity: 0; } .buddy[data-mood="info"] .f-open { opacity: 1; }
+  .buddy[data-mood="warn"] { --glow: #F4D35E; }
+  .buddy[data-mood="warn"] .f-happy, .buddy[data-mood="warn"] .f-smile { opacity: 0; }
+  .buddy[data-mood="warn"] .f-open, .buddy[data-mood="warn"] .f-flat { opacity: 1; }
+  .buddy[data-mood="alert"] { --glow: #F08A8A; }
+  .buddy[data-mood="alert"] .f-happy, .buddy[data-mood="alert"] .f-smile { opacity: 0; }
+  .buddy[data-mood="alert"] .f-open, .buddy[data-mood="alert"] .f-brow, .buddy[data-mood="alert"] .f-flat { opacity: 1; }
+
+  .b-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 560px; }
+  .b-controls button { padding: 8px 14px; border-radius: 999px; border: 1.5px solid var(--edge); background: var(--surface); color: var(--ink); font: 700 .88rem var(--f-body); cursor: url("/cursor-link.svg") 4 4, pointer; }
+  .b-controls button[aria-pressed="true"] { background: var(--accent); }
+  .b-note { flex-basis: 100%; text-align: center; margin: 4px 0 0; font-size: .9rem; min-height: 1.4em; }
+  @media (prefers-reduced-motion: reduce) { .b-glow { transition: none; } }
+</style>

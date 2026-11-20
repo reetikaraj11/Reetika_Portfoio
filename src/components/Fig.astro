@@ -1,0 +1,29 @@
+---
+interface Props {
+  src: string; alt: string; caption?: string;
+  ratio?: string; fit?: "cover" | "contain";
+  stage?: "none" | "dark" | "white"; concept?: boolean; hand?: string; loading?: "lazy" | "eager";
+}
+const { src, alt, caption, ratio, fit = "cover", stage = "none", concept = false, hand, loading = "lazy" } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const url = src.startsWith("http") ? src : `${base}${src}`;
+---
+<figure class="fig">
+  <div class:list={["frame", `stage-${stage}`]} style={ratio ? `aspect-ratio:${ratio}` : undefined}>
+    <img src={url} alt={alt} loading={loading} decoding="async" style={`object-fit:${fit}`} class:list={{ fill: !!ratio }} />
+    {concept && <span class="sticker lav label">Concept visualisation</span>}
+    {hand && <span class="hand note">{hand}</span>}
+  </div>
+  {caption && <figcaption set:html={caption} />}
+</figure>
+<style>
+  .fig { margin: 0; }
+  .frame { position: relative; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--edge); background: var(--surface); }
+  .stage-dark { background: #0b0b0d; }
+  .stage-white { background: #fff; }
+  img.fill { width: 100%; height: 100%; }
+  img:not(.fill) { width: 100%; }
+  .label { position: absolute; top: 12px; left: 12px; }
+  .note { position: absolute; left: 12px; bottom: 12px; background: var(--surface); padding: 2px 12px; border-radius: 999px; font-size: 1.1rem; }
+  figcaption { font-size: .88rem; color: var(--muted); margin-top: 10px; padding: 0 4px; }
+</style>

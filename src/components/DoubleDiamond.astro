@@ -1,0 +1,64 @@
+---
+/*
+  Double-diamond process diagram: Discover / Define / Develop / Deliver, with the
+  project's own numbered steps listed under the phase they belong to.
+*/
+interface Step { label: string; sub?: string; }
+interface Phase { name: string; mode: string; steps: Step[]; }
+interface Props { phases: [Phase, Phase, Phase, Phase]; problem?: string; solution?: string; }
+const { phases, problem = "Problem", solution = "Solution" } = Astro.props;
+let n = 0;
+const numbered = phases.map((p) => ({ ...p, steps: p.steps.map((s) => ({ ...s, n: ++n })) }));
+---
+<div class="dd reveal">
+  <div class="dd-fig">
+    <svg viewBox="0 0 1000 250" aria-hidden="true" preserveAspectRatio="none">
+      <path class="dd-shape a" d="M10 125 L255 12 L500 125 L255 238 Z" />
+      <path class="dd-shape b" d="M500 125 L745 12 L990 125 L745 238 Z" />
+      <line class="dd-mid" x1="255" y1="12" x2="255" y2="238" />
+      <line class="dd-mid" x1="745" y1="12" x2="745" y2="238" />
+    </svg>
+    <span class="dd-end l">{problem}</span>
+    <span class="dd-end c">Problem<br />defined</span>
+    <span class="dd-end r">{solution}</span>
+    {numbered.map((p, i) => (
+      <span class="dd-phase" style={`left:${12.5 + i * 25}%`}><b>{p.name}</b><small>{p.mode}</small></span>
+    ))}
+  </div>
+  <div class="dd-cols">
+    {numbered.map((p) => (
+      <div class="dd-col">
+        <h3>{p.name}</h3>
+        <ol>{p.steps.map((s) => <li><span class="dd-n">{String(s.n).padStart(2, "0")}</span><span><b>{s.label}</b>{s.sub && <small>{s.sub}</small>}</span></li>)}</ol>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .dd-fig { position: relative; aspect-ratio: 1000 / 250; margin: 0 22px; }
+  .dd-fig svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .dd-shape { stroke: var(--accent-ink); stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .dd-shape.a { fill: var(--accent-tint); }
+  .dd-shape.b { fill: color-mix(in srgb, var(--accent) 45%, var(--surface)); }
+  .dd-mid { stroke: var(--accent-ink); stroke-width: 1; stroke-dasharray: 4 5; opacity: .6; vector-effect: non-scaling-stroke; }
+  .dd-phase { position: absolute; top: 50%; transform: translate(-50%, -50%); text-align: center; line-height: 1.15; }
+  .dd-phase b { display: block; font: 400 clamp(1.05rem, 2.2vw, 1.6rem) var(--f-display); }
+  .dd-phase small { display: block; font-size: clamp(.68rem, 1vw, .8rem); color: var(--muted); margin-top: 2px; }
+  .dd-end { position: absolute; top: calc(50% + clamp(30px, 6vw, 70px)); transform: translateX(-50%); font-size: .74rem; font-weight: 700; color: var(--accent-ink); text-align: center; line-height: 1.2; white-space: nowrap; }
+  .dd-end.l { left: 1%; } .dd-end.c { left: 50%; } .dd-end.r { left: 99%; }
+  .dd-cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: clamp(40px, 6vw, 64px); }
+  .dd-col { border-top: 2px solid var(--accent-ink); padding-top: 12px; }
+  .dd-col h3 { font-size: 1rem; margin-bottom: 10px; }
+  .dd-col ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .dd-col li { display: flex; gap: 10px; align-items: flex-start; line-height: 1.3; }
+  .dd-n { flex: none; font: 400 1.1rem/1.1 var(--f-display); color: var(--accent-ink); min-width: 1.6em; }
+  .dd-col b { display: block; font-size: .95rem; }
+  .dd-col small { display: block; color: var(--muted); font-size: .82rem; }
+  @media (max-width: 760px) {
+    .dd-fig { margin: 0 4px; aspect-ratio: 1000 / 420; }
+    .dd-phase small, .dd-end { display: none; }
+    .dd-phase b { font-size: clamp(.7rem, 3.4vw, .95rem); }
+    .dd-cols { grid-template-columns: 1fr 1fr; row-gap: 24px; }
+  }
+</style>

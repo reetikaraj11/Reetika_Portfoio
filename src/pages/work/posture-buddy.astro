@@ -1,0 +1,438 @@
+---
+import Base from "../../layouts/Base.astro";
+import Chapter from "../../components/Chapter.astro";
+import Stat from "../../components/Stat.astro";
+import Fig from "../../components/Fig.astro";
+import DoubleDiamond from "../../components/DoubleDiamond.astro";
+import Callouts from "../../components/Callouts.astro";
+import DotTree from "../../components/DotTree.astro";
+import TopTree from "../../components/TopTree.astro";
+import BuddyScreen from "../../components/BuddyScreen.astro";
+import PostureSlider from "../../components/PostureSlider.astro";
+import "../../styles/case.css";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const img = (n: string) => `/work/posture-buddy/${n}.webp`;
+
+/* ---------- data (Posture Buddy deck; slide refs in comments) ---------- */
+const phases: any = [
+  { name: "Discover", mode: "understand the problem", steps: [{ label: "Desk research", sub: "effects of bad posture" }] },
+  { name: "Define", mode: "frame it", steps: [{ label: "Problem framing", sub: "why habits stick" }] },
+  { name: "Develop", mode: "explore and test", steps: [{ label: "Ideation", sub: "5 directions" }, { label: "Backpack test", sub: "2 users" }, { label: "Personas", sub: "3 people" }, { label: "Form exploration", sub: "~20 sketches" }] },
+  { name: "Deliver", mode: "shape one product", steps: [{ label: "Product & interaction", sub: "the puppy" }, { label: "Software design", sub: "proposed" }, { label: "Prototype", sub: "thermocol model" }] },
+];
+// p2
+const effects = { label: "Bad posture", children: [
+  { label: "Body", children: [{ label: "More pressure on the spine; injury and degeneration" }, { label: "Neck, shoulder and back pain" }, { label: "Joints move less well" }, { label: "Less flexibility" }, { label: "Poorer balance, more falls" }] },
+  { label: "Breathing", children: [{ label: "Breathing disorders" }, { label: "Strain on the heart and phrenic nerve" }] },
+  { label: "Mind", children: [{ label: "Bad mood" }, { label: "Stress" }, { label: "Mental tiredness" }] },
+  { label: "Long term", children: [{ label: "Habits formed young start to feel comfortable" }, { label: "Strain on spine, pelvis, muscles and discs" }, { label: "Core-muscle imbalance in women" }] },
+] };
+// p5
+const ideas = { label: "Help people keep a healthy posture", children: [
+  { label: "Laptop-height desk accessory" },
+  { label: "Posture assistance", note: "reminder + detector", children: [{ label: "Posture Buddy", note: "desk companion", state: "chosen" as const }] },
+  { label: "Ergonomic posture chair" },
+  { label: "Wearable corrector", children: [{ label: "Posture-corrector backpack", state: "dropped" as const }] },
+  { label: "Stretching equipment" },
+] };
+// p8 hand-drawn mind map, grouped
+const features = { label: "Posture Buddy", children: [
+  { label: "Detect", children: [{ label: "Posture, with a basic or IR camera" }, { label: "Rotating head to see the whole body" }, { label: "Buzz when you leave your study posture" }] },
+  { label: "Remind", children: [{ label: "Walk and stretch" }, { label: "Medicine, meetings, errands" }, { label: "Exercise and workouts" }, { label: "Gentle reminders, short or long" }] },
+  { label: "Signal", children: [{ label: "Flags" }, { label: "Projected lights" }, { label: "Light or icon on the display" }, { label: "Buzz sound (optional)" }, { label: "Vibration" }] },
+  { label: "Modes", children: [{ label: "Study buddy" }, { label: "Work and assignment buddy" }, { label: "Study or work goals" }] },
+  { label: "Time tools", children: [{ label: "Clock, timer, stopwatch" }, { label: "Shows how much you achieved" }, { label: "Rotating dials set reminders" }, { label: "Colour-coded reminders" }] },
+] };
+// p10–11 (components) arranged as sense / think / respond
+const system = { label: "Posture Buddy", children: [
+  { label: "Sense", list: ["Camera: posture and face", "Microphone: voice", "Buttons and touchscreen"] },
+  { label: "Think", list: ["Microcontroller", "Pose model (proposed)", "Posture rules and timers"] },
+  { label: "Respond", list: ["Screen: messages and animations", "RGB light strip", "Speaker", "Vibration and tail"] },
+] };
+const insights = [
+  { saw: "People slouch without noticing, even when they know the risks.", ref: "Research", means: "Buddy has to notice for them, at the moment it happens." },
+  { saw: "1–2 hours of exercise doesn't undo 9–12 hours of bad sitting.", ref: "Research", means: "Nudges belong during sitting: move, stretch, walk." },
+  { saw: "The backpack stopped slouching but felt heavy and restricted arm movement.", ref: "Usability test", means: "Correcting posture shouldn't put load on the body." },
+  { saw: "One persona refused anything wearable.", ref: "Personas", means: "Nothing to wear: Buddy sits on the desk." },
+  { saw: "People also forget water, medicine and meetings.", ref: "Personas", means: "One companion for all the small reminders, not posture alone." },
+  { saw: "Most people preferred a pet form.", ref: "Form feedback", means: "A puppy makes reminders feel friendly rather than nagging." },
+];
+const personas = [
+  { name: "Mohit", age: 41, img: "persona-mohit", need: "Likes a clean desk with minimal things, and buys geometric-looking appliances." },
+  { name: "Neha", age: 31, img: "persona-neha", need: "Forgets to drink water; reminders for that and other important things would help." },
+  { name: "Tahmina", age: 25, img: "persona-tahmina", need: "Has asthma. Wants breathing and exercise reminders with posture detection, but nothing wearable." },
+];
+const map = [
+  { who: "Mohit", need: "A minimal, tidy desk", feat: "Compact, boxy form that sits quietly on the desk" },
+  { who: "Neha", need: "Remembering water and errands", feat: "Water, medicine and meeting reminders on screen" },
+  { who: "Tahmina", need: "Breathing and exercise", feat: "Breathing and stretch prompts, yoga poses on screen" },
+  { who: "Tahmina", need: "Nothing to wear", feat: "Camera-based posture detection from the desk" },
+];
+const spots = [
+  { x: 30, y: 44, side: "l" as const, title: "Microphone", text: "For voice commands." },
+  { x: 23, y: 62, side: "l" as const, title: "Charging slot", text: "Recharges the battery." },
+  { x: 11, y: 67, side: "l" as const, title: "Tail", text: "Can wag or vibrate as a soft, secondary alert." },
+  { x: 48, y: 77, side: "l" as const, title: "Hidden vibration motors", text: "A buzz for an immediate correction." },
+  { x: 65, y: 10, side: "r" as const, title: "Camera", text: "Watches posture and facial expressions." },
+  { x: 87, y: 21, side: "r" as const, title: "RGB light strip", text: "A thin strip behind the screen lights up for reminders." },
+  { x: 70, y: 32, side: "r" as const, title: "Screen", text: "Messages, dog animations and yoga poses; the main way to interact." },
+  { x: 74, y: 39, side: "r" as const, title: "Buttons", text: "Dismiss alerts, change settings, set breaks." },
+  { x: 64, y: 47, side: "r" as const, title: "Speaker and power", text: "Voice alerts and calming sounds; power button below." },
+];
+const day = [
+  { label: "Slouching", msg: "Don't slouch!!", mood: "warn" as const, note: "The face frowns and the light glows yellow until you sit up." },
+  { label: "Stiff neck", msg: "Stretch your neck", mood: "info" as const, note: "Shows a stretch to follow." },
+  { label: "Meeting", msg: "Meeting in 10 mins", mood: "info" as const, note: "Calendar reminders, for people like Neha." },
+  { label: "Water", msg: "Drink water", mood: "info" as const, note: "A gentle timer-based nudge." },
+  { label: "Sat too long", msg: "Time for a walk", mood: "warn" as const, note: "Breaks up long sitting, as the research suggests." },
+  { label: "All good", msg: "Nice posture!", mood: "happy" as const, note: "Happy face, no light." },
+];
+const ladder = ["Message on screen", "Light glows", "Voice prompt", "Vibration or tail wag"];
+---
+<Base title="Posture Buddy · Reetika Raj" description="Case study: Posture Buddy, a puppy-shaped desk companion that notices slouching and nudges you to move, stretch and drink water.">
+<div class="case" style="--accent:var(--lemon);--accent-ink:var(--lemon-ink);--accent-tint:var(--lemon-tint)">
+
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1>Posture Buddy: a desk friend that notices when you slouch</h1>
+      <p class="lede">Most of us know we sit badly and keep doing it anyway. Posture Buddy is a small puppy-shaped companion that watches your posture, nudges you to move, and remembers the water you forgot.</p>
+      <div class="hero-tags">
+        <span class="sticker">UX research</span><span class="sticker pink">Personas</span><span class="sticker sky">Usability testing</span><span class="sticker mint">Interaction design</span>
+      </div>
+    </div>
+    <div class="pb-cover">
+      <img src={`${base}${img("cover")}`} alt="Illustration of Posture Buddy: a cardboard-coloured puppy robot with a screen face that says Don't slouch" loading="eager" />
+    </div>
+  </div>
+</header>
+
+<section class="glance">
+  <div class="wrap">
+    <div class="grid g3 reveal">
+      <div class="card ink tl"><span class="sticker pink">Problem</span><p>People who sit for hours slowly slouch without noticing, and exercise after work doesn't undo it.</p></div>
+      <div class="card ink tl"><span class="sticker sky">Approach</span><p>Desk research, a wearable prototype tested with users, personas, a feature mind map, and about 20 form sketches shaped by user preference.</p></div>
+      <div class="card ink tl"><span class="sticker mint">Outcome</span><p>A puppy desk companion with a camera, an expressive screen and a light strip, with a proposed software design and a thermocol model.</p></div>
+    </div>
+    <div class="grid g4 stats reveal">
+      <Stat num="9–12 h" label="of sitting a day that research says needs breaks" tone="lemon" />
+      <Stat num="1–2 h" label="of exercise, not enough to make up for it" tone="pink" />
+      <Stat num="3" label="personas guiding features and form" tone="sky" />
+      <Stat num="~20" label="form sketches before the puppy" tone="mint" />
+    </div>
+  </div>
+</section>
+
+<Chapter id="method" title="Methodology: how Posture Buddy came together" lede="Nine steps across the double diamond: widen to understand the problem, narrow to define it, widen again to explore ideas, then narrow to one product." tone="white">
+  <DoubleDiamond phases={phases} problem="Slouching at the desk" solution="Posture Buddy" />
+</Chapter>
+
+<Chapter id="why" num="01" title="Why posture matters: what slouching does to the body" lede="Bad posture is not only back pain. Desk research showed effects across the body, breathing and mood." tone="plain">
+  <div class="card ink reveal"><DotTree root={effects} /></div>
+</Chapter>
+
+<Chapter id="problem" num="02" title="The real problem: knowing isn't enough" tone="lemon">
+  <p class="pb-statement reveal">People can't hold a good back posture through long hours of work or study, and they slip back into slouching without noticing, even after learning the risks.</p>
+  <div class="grid g4 reveal">
+    {[
+      ["Upper crossed syndrome", "Tight chest and neck, weak upper back: neck pain, rounded shoulders, headaches.", "M20 8 C 30 22, 14 34, 22 48 S 20 70, 26 80"],
+      ["Lower crossed syndrome", "Tight lower back and hip flexors, weak glutes and abs, from sitting for hours without moving.", "M24 8 C 22 26, 22 40, 30 54 S 18 72, 24 80"],
+      ["Kyphosis", "Excessive rounding of the upper back (“hunchback”).", "M18 8 C 40 24, 34 44, 24 56 S 22 72, 24 80"],
+      ["Lordosis", "Exaggerated inward curve of the lower back (“swayback”).", "M24 8 C 22 26, 26 40, 12 58 S 26 74, 24 80"],
+    ].map(([t, d, p]) => (
+      <div class="cond card">
+        <svg viewBox="0 0 48 88" aria-hidden="true"><path d={p} /></svg>
+        <div><h3>{t}</h3><p class="muted">{d}</p></div>
+      </div>
+    ))}
+  </div>
+  <div class="card ink compare-bars reveal">
+    <div class="cb-row"><span>Sitting in bad posture</span><span class="cb-bar"><i style="width:100%;background:var(--pink)">9–12 h</i></span></div>
+    <div class="cb-row"><span>Exercise to make up for it</span><span class="cb-bar"><i style="width:15%;background:var(--mint)">1–2 h</i></span></div>
+    <p class="muted small" style="margin:12px 0 0">Researchers suggest keeping good posture and stretching or walking between sitting hours, rather than relying on exercise alone.</p>
+  </div>
+</Chapter>
+
+<Chapter id="synthesis" num="03" title="Research synthesis: what we learned, and what it means" lede="Each finding from research, testing and personas became a design principle." tone="white">
+  <div class="insights reveal">
+    {insights.map((x) => (
+      <div class="ins">
+        <p class="ins-saw"><span class="chip">{x.ref}</span>{x.saw}</p>
+        <span class="arr" aria-hidden="true">→</span>
+        <p class="ins-means">{x.means}</p>
+      </div>
+    ))}
+  </div>
+</Chapter>
+
+<Chapter id="ideas" num="04" title="Ideas: five directions, one chosen" lede="We sketched five ways to help. The wearable was tried first; posture assistance became Posture Buddy." tone="plain">
+  <div class="card ink reveal"><TopTree root={ideas} /></div>
+  <div class="sketches reveal">
+    {["idea-lumbar-bag", "idea-shoulder-arm", "idea-chair", "idea-desk"].map((n, i) => (
+      <img src={`${base}${img(n)}`} alt={["Sketch of a lumbar-support backpack", "Sketch of a shoulder support arm", "Sketch of a posture chair", "Sketch of a laptop-height desk accessory"][i]} loading="lazy" />
+    ))}
+  </div>
+</Chapter>
+
+<Chapter id="backpack" num="05" title="First attempt: a posture-corrector backpack" lede="A detachable back panel with a stiff plate and padded shoulder straps, built and tested with two users." tone="sky">
+  <div class="grid g-12 reveal">
+    <div class="stack">
+      <Fig src={img("bag-sketch")} alt="Sketch of the detachable posture-support backpack with shoulder straps and a back plate" ratio="3/2" stage="white" />
+      <Fig src={img("bag-prototype")} alt="Backpack prototype with padded white shoulder supports" ratio="3/4" />
+    </div>
+    <div>
+      <div class="ba">
+        <figure><img src={`${base}${img("test-a-before")}`} alt="Tester slouching on a plastic chair before the test" loading="lazy" /><figcaption>Before</figcaption></figure>
+        <figure><img src={`${base}${img("test-a-after")}`} alt="Same tester sitting upright wearing the backpack supports" loading="lazy" /><figcaption>With backpack</figcaption></figure>
+        <figure><img src={`${base}${img("test-b-before")}`} alt="Second tester hunched over a desk before the test" loading="lazy" /><figcaption>Before</figcaption></figure>
+        <figure><img src={`${base}${img("test-b-after")}`} alt="Second tester sitting straighter wearing the backpack supports" loading="lazy" /><figcaption>With backpack</figcaption></figure>
+      </div>
+      <h3 style="margin-top:22px">What users told us</h3>
+      <ul class="ticks">
+        <li>It helped: it stopped them slouching.</li>
+        <li class="x">Back support could have been better.</li>
+        <li class="x">It restricted hand movement.</li>
+        <li class="x">Heavy for long hours, though fine if worn on and off.</li>
+      </ul>
+      <p class="callout">It worked, but it put weight on the body and got in the way. We moved to something that sits on the desk instead.</p>
+    </div>
+  </div>
+</Chapter>
+
+<Chapter id="personas" num="06" title="Personas: three people, three needs" lede="Three people who sit for long hours, each with a different need beyond posture." tone="white">
+  <div class="grid g3 reveal">
+    {personas.map((p) => (
+      <div class="persona card ink">
+        <img src={`${base}${img(p.img)}`} alt={`Photo of ${p.name}`} loading="lazy" />
+        <div><h3>{p.name}, {p.age}</h3><p class="muted">{p.need}</p></div>
+      </div>
+    ))}
+  </div>
+  <p class="pb-statement small-statement reveal">“Posture Buddy will be a smart desktop companion that monitors your sitting posture, reminds you to stay active, and guides you through personalised stretches, with voice and buttons to control it.”</p>
+</Chapter>
+
+<Chapter id="map" num="07" title="Persona → feature map: who each feature is for" tone="plain">
+  <div class="card ink pmap reveal">
+    <table>
+      <thead><tr><th scope="col">Persona</th><th scope="col">Need</th><th scope="col">How Posture Buddy answers it</th></tr></thead>
+      <tbody>{map.map((r) => <tr><th scope="row">{r.who}</th><td>{r.need}</td><td>{r.feat}</td></tr>)}</tbody>
+    </table>
+  </div>
+</Chapter>
+
+<Chapter id="mindmap" num="08" title="Mind map: everything Posture Buddy could do" lede="Her hand-drawn mind map, grouped into five kinds of feature." tone="lemon">
+  <div class="grid g-21 reveal">
+    <div class="card ink"><DotTree root={features} /></div>
+    <Fig src={img("mindmap-original")} alt="Original hand-drawn mind map of Posture Buddy features" stage="white" caption="The original hand-drawn map" />
+  </div>
+</Chapter>
+
+<Chapter id="form" num="09" title="Form: why a puppy" lede="About twenty sketches explored screens, robots and animals. When we asked people, most preferred a pet, so Buddy became a small puppy." tone="white">
+  <div class="forms reveal">
+    {["form-b", "form-a", "form-c", "form-d", "form-e"].map((n, i) => (
+      <figure class:list={{ pick: i >= 3 }}><img src={`${base}${img(n)}`} alt={["Sketches of screen-based companions with robot bodies", "Sketches of box and round screen companions", "Sketches of capsule and robot forms", "Sketches of animal-eared companions, including the puppy", "Line drawing of the puppy form, front view"][i]} loading="lazy" /></figure>
+    ))}
+  </div>
+  <p class="muted small reveal">Mood board direction: friendly, a face on a screen, small enough for a desk.</p>
+</Chapter>
+
+<Chapter id="product" num="10" title="The product: meet Posture Buddy" lede="What each part does. Point at a label to trace it to the product." tone="lemon">
+  <div class="reveal"><Callouts src={img("product")} alt="Posture Buddy illustration with its parts labelled" spots={spots} ratio="1024/1404" /></div>
+</Chapter>
+
+<Chapter id="day" num="11" title="Interaction: a day with Buddy" lede="Try the moments from the storyboard: Buddy's face, message and light change with each one." tone="white">
+  <div class="grid g2 reveal day">
+    <BuddyScreen scenarios={day} size={320} />
+    <Fig src={img("ai-storyboard")} alt="Six-panel storyboard: Buddy reminds a person not to slouch, to stretch, about a meeting, to drink water and to walk" concept stage="white" />
+  </div>
+</Chapter>
+
+<Chapter id="software" num="12" title="Software design: how Buddy would see you" lede="How the posture detection could work. This part is a proposed design; it hasn't been built yet." tone="sky">
+  <p class="proposed reveal"><b>Proposed design, not built.</b> The hardware and interaction were designed in the project; the software below shows how they would be connected.</p>
+  <div class="card ink reveal"><TopTree root={system} label="Posture Buddy system: sense, think, respond" /></div>
+
+  <h3 class="sub reveal">1. From camera to posture</h3>
+  <ol class="pipe reveal">
+    <li><b>Camera frame</b><span>A few frames a second from the screen-top camera</span></li>
+    <li><b>Pose model</b><span>On-device model (e.g. MediaPipe Pose or MoveNet) finds ears, shoulders and hips</span></li>
+    <li><b>Angles</b><span>Neck: ear–shoulder line vs vertical. Back: shoulder–hip line vs vertical.</span></li>
+    <li><b>Rules and timer</b><span>Only a posture held for a while counts, so a quick lean doesn't trigger anything</span></li>
+    <li><b>Response</b><span>Buddy's face, light, voice or buzz</span></li>
+  </ol>
+
+  <h3 class="sub reveal">2. Try the rules</h3>
+  <div class="card ink reveal"><PostureSlider /></div>
+
+  <div class="grid g2 reveal" style="margin-top:28px">
+    <div class="card ink">
+      <h3>3. Alerts that escalate gently</h3>
+      <ol class="ladder-steps">{ladder.map((l) => <li>{l}</li>)}</ol>
+      <p class="muted small" style="margin:12px 0 0">Each step only happens if the posture continues. Buttons snooze or dismiss.</p>
+    </div>
+    <div class="card ink">
+      <h3>4. Privacy by default</h3>
+      <ul class="ticks">
+        <li>Frames are processed on the device</li>
+        <li>No images are stored or sent anywhere</li>
+        <li>Only angles and times are kept, for a daily summary</li>
+        <li>A button turns the camera off</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid g2 reveal" style="margin-top:20px">
+    <div class="card ink">
+      <h3>5. Monitoring loop</h3>
+<pre><code>while awake:
+  frame = camera.read()
+  pose  = model.detect(frame)       # ears, shoulders, hips
+  neck  = angle(pose.ear, pose.shoulder)
+  back  = angle(pose.shoulder, pose.hip)
+
+  if neck &gt; 25 or back &gt; 20:  level = ALERT
+  elif neck &gt; 15 or back &gt; 10: level = NUDGE
+  else:                          level = OK
+
+  timer.track(level)                # held for 60 s?
+  if timer.held(level, 60):
+    buddy.respond(level)            # face → light → voice → buzz
+  reminders.check()                 # water, stretch, meetings</code></pre>
+      <p class="muted small" style="margin:10px 0 0">Thresholds are illustrative and would be tuned in testing.</p>
+    </div>
+    <div class="card ink">
+      <h3>6. Device flow</h3>
+      <ol class="flow-v">
+        <li>Power on and start up</li>
+        <li>Begin monitoring posture</li>
+        <li class="q">Bad posture?<small>No → keep monitoring</small></li>
+        <li>Track the user's response</li>
+        <li>Suggest movement or a break</li>
+        <li>User responds on the screen or buttons</li>
+        <li>Keep monitoring in the background</li>
+        <li>Sleep or power off</li>
+      </ol>
+    </div>
+  </div>
+</Chapter>
+
+<Chapter id="look" num="13" title="Look: angles and colourways" tone="white">
+  <div class="grid g2 reveal">
+    <Fig src={img("ai-angles")} alt="Posture Buddy from four angles in cardboard colour" ratio="1/1" concept stage="white" />
+    <Fig src={img("ai-colours")} alt="Posture Buddy in four colourways: blue, cream, sand and grey" ratio="13/16" fit="contain" concept stage="white" />
+  </div>
+</Chapter>
+
+<Chapter id="prototype" num="14" title="Prototype: checking size and form in thermocol" lede="A quick thermocol model to judge how big Buddy should be on a real desk." tone="plain">
+  <div class="thermo reveal">
+    {["thermo-a", "thermo-b", "thermo-c", "thermo-d", "thermo-e"].map((n, i) => (
+      <img src={`${base}${img(n)}`} alt={["Thermocol model, front view with ears", "Thermocol model, close front view", "Thermocol model from slightly above", "Thermocol model, three-quarter view", "Thermocol model, side view"][i]} loading="lazy" />
+    ))}
+  </div>
+</Chapter>
+
+<Chapter id="reflect" num="15" title="Outcome and reflection: what we made, and what I learned" tone="mint">
+  <div class="grid g2 reveal">
+    <div class="card ink">
+      <h3>Outcome</h3>
+      <ul class="ticks">
+        <li>A desk companion designed from research and user feedback</li>
+        <li>Features traced to three personas' needs</li>
+        <li>An expressive puppy form, chosen by the people we asked</li>
+        <li>A thermocol model for size, and a proposed software design</li>
+      </ul>
+    </div>
+    <div class="card ink">
+      <h3>What I learned</h3>
+      <ul class="ticks">
+        <li><b>Test early, even if it fails.</b> The backpack showed what users wouldn't accept.</li>
+        <li><b>Design for the habit, not the knowledge.</b> People already knew; they needed reminding.</li>
+        <li><b>Let users shape the form.</b> Asking people led straight to the puppy.</li>
+        <li><b>Next:</b> build the detection, then test the alert levels with real users.</li>
+      </ul>
+    </div>
+  </div>
+</Chapter>
+
+<section class="back">
+  <div class="wrap">
+    <a class="btn primary back-btn" href={`${base}/`}><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3.5 5.5 9l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to main page</a>
+  </div>
+</section>
+
+</div>
+</Base>
+
+<style>
+  .pb-cover { max-width: 400px; justify-self: center; width: 100%; border-radius: var(--radius); overflow: hidden; border: 1.5px solid var(--edge); background: #FDE9C7; }
+  .pb-cover img { width: 100%; height: auto; }
+  .pb-statement { font: 400 clamp(1.3rem, 2.4vw, 1.75rem)/1.35 var(--f-display); max-width: 34em; margin: 0 0 28px; }
+  .small-statement { font-size: clamp(1.1rem, 1.8vw, 1.35rem); margin: 28px 0 0; color: var(--muted); }
+  .cond { display: flex; gap: 14px; align-items: flex-start; }
+  .cond svg { flex: none; width: 34px; height: 62px; }
+  .cond path { fill: none; stroke: var(--accent-ink); stroke-width: 3.2; stroke-linecap: round; stroke-dasharray: 1 6.5; }
+  .cond h3 { font-size: 1.02rem; margin-bottom: 4px; }
+  .cond p { margin: 0; font-size: .9rem; line-height: 1.45; }
+  .compare-bars { margin-top: 20px; }
+  .cb-row { display: grid; grid-template-columns: minmax(150px, 30%) 1fr; gap: 12px; align-items: center; margin-bottom: 10px; }
+  .cb-bar { display: block; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .cb-bar i { display: block; font-style: normal; font-weight: 800; padding: 6px 12px; border-radius: 999px; white-space: nowrap; min-width: max-content; }
+  .insights { display: grid; gap: 12px; }
+  .ins { display: grid; gap: 10px; align-items: stretch; }
+  @media (min-width: 820px) { .ins { grid-template-columns: 1fr auto 1fr; } }
+  .ins p { margin: 0; padding: 14px 18px; border-radius: var(--radius-sm); }
+  .ins-saw { background: var(--surface); border: 1.5px solid var(--line); }
+  .ins-saw .chip { margin-right: 8px; }
+  .ins-means { background: var(--accent-tint); font-weight: 700; }
+  .ins .arr { align-self: center; justify-self: center; }
+  @media (max-width: 819px) { .ins .arr { transform: rotate(90deg); } }
+  .sketches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 20px; }
+  .sketches img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: var(--radius-sm); border: 1.5px solid var(--line); }
+  @media (max-width: 640px) { .sketches { grid-template-columns: repeat(2, 1fr); } }
+  .ba { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .ba figure { margin: 0; }
+  .ba img { width: 100%; aspect-ratio: 9/14; object-fit: cover; border-radius: var(--radius-sm); border: 1.5px solid var(--edge); }
+  .ba figcaption { font-size: .8rem; color: var(--muted); margin-top: 4px; text-align: center; }
+  @media (max-width: 640px) { .ba { grid-template-columns: repeat(2, 1fr); } }
+  .case .ticks li.x::before { content: "!"; background: var(--pink); }
+  .callout { margin: 18px 0 0; padding: 14px 18px; border-radius: var(--radius-sm); background: var(--surface); border-left: 4px solid var(--accent-ink); }
+  .persona { display: grid; gap: 14px; align-content: start; }
+  .persona img { width: 100%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius-sm); }
+  .persona h3 { margin-bottom: 4px; }
+  .persona p { margin: 0; }
+  .pmap { overflow-x: auto; }
+  .pmap table { min-width: 560px; }
+  .pmap th, .pmap td { padding: 10px 12px; text-align: left; vertical-align: top; }
+  .pmap thead th { font-size: .85rem; color: var(--muted); font-weight: 700; }
+  .pmap tbody tr { background: var(--bg); }
+  .pmap tbody th { border-radius: 10px 0 0 10px; }
+  .pmap tbody td:last-child { border-radius: 0 10px 10px 0; background: var(--accent-tint); font-weight: 700; }
+  .forms { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; align-items: center; }
+  .forms figure { margin: 0; padding: 8px; background: #fff; border-radius: var(--radius-sm); border: 1.5px solid var(--line); }
+  .forms figure.pick { border-color: var(--accent-ink); box-shadow: 0 0 0 3px var(--accent-tint); }
+  .forms img { width: 100%; height: 170px; object-fit: contain; }
+  @media (max-width: 760px) { .forms { grid-template-columns: repeat(2, 1fr); } }
+  .day { align-items: center; }
+  .proposed { margin: 0 0 22px; padding: 14px 18px; border-radius: var(--radius-sm); background: var(--surface); border: 1.5px dashed var(--accent-ink); max-width: 760px; }
+  .sub { margin: 36px 0 14px; font-size: 1.15rem; }
+  .pipe { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: p; }
+  @media (min-width: 900px) { .pipe { grid-template-columns: repeat(5, 1fr); } }
+  .pipe li { position: relative; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--surface); border: 1.5px solid var(--edge); counter-increment: p; }
+  .pipe li::before { content: counter(p); display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); font-weight: 800; font-size: .8rem; margin-bottom: 6px; }
+  .pipe b { display: block; }
+  .pipe span { color: var(--muted); font-size: .88rem; line-height: 1.4; }
+  .ladder-steps { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; counter-reset: l; }
+  .ladder-steps li { counter-increment: l; padding: 8px 12px; border-radius: 10px; background: var(--bg); }
+  .ladder-steps li:nth-child(1) { margin-right: 30%; } .ladder-steps li:nth-child(2) { margin-right: 20%; } .ladder-steps li:nth-child(3) { margin-right: 10%; }
+  .ladder-steps li:nth-child(3), .ladder-steps li:nth-child(4) { background: var(--pink-tint); }
+  .ladder-steps li::before { content: counter(l) ". "; font-weight: 800; }
+  pre { margin: 12px 0 0; padding: 14px 16px; border-radius: var(--radius-sm); background: #2F2C40; color: #F3F1FA; overflow-x: auto; font-size: .8rem; line-height: 1.55; }
+  .flow-v { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 18px; }
+  .flow-v li { position: relative; padding: 9px 14px; border-radius: 10px; background: var(--bg); border: 1.5px solid var(--edge); text-align: center; font-size: .92rem; }
+  .flow-v li + li::before { content: ""; position: absolute; left: 50%; top: -19px; height: 18px; border-left: 1.5px solid var(--ink); }
+  .flow-v li.q { background: var(--accent); font-weight: 800; border-radius: 4px; }
+  .flow-v li.q small { display: block; font-weight: 600; color: var(--ink); opacity: .75; }
+  .thermo { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .thermo img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: var(--radius-sm); border: 1.5px solid var(--edge); }
+  @media (max-width: 760px) { .thermo { grid-template-columns: repeat(2, 1fr); } }
+</style>

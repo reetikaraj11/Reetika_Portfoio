@@ -1,0 +1,19 @@
+---
+/* One node of a DotTree (recursive). */
+export interface TreeNode { label: string; note?: string; children?: TreeNode[]; }
+interface Props { node: TreeNode; parent?: string; path: string; depth: number; }
+const { node, parent, path, depth } = Astro.props;
+const kids = node.children ?? [];
+---
+{kids.length ? (
+  <div class:list={["dt-node", `d${depth}`]}>
+    <span class="dt-label" data-id={path} data-p={parent}>
+      <span class="dt-text">{node.label}{node.note && <small>{node.note}</small>}</span><i class="dt-dot"></i>
+    </span>
+    <div class="dt-kids">
+      {kids.map((k, i) => <Astro.self node={k} parent={path} path={`${path}-${i}`} depth={depth + 1} />)}
+    </div>
+  </div>
+) : (
+  <span class="dt-leaf" data-id={path} data-p={parent}><i class="dt-dot"></i><span class="dt-text">{node.label}{node.note && <small>{node.note}</small>}</span></span>
+)}

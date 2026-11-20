@@ -1,0 +1,88 @@
+---
+/*
+  Illustrative demo of the proposed posture rules: two sliders bend a seated stick figure
+  (neck angle, back lean) and a Buddy reacts. Thresholds are proposed, not measured.
+*/
+import BuddyScreen from "./BuddyScreen.astro";
+const id = `ps${Math.random().toString(36).slice(2, 7)}`;
+---
+<div class="ps" data-ps data-buddy-id={`${id}-b`}>
+  <div class="ps-fig">
+    <svg viewBox="0 0 300 270" role="img" aria-label="Side view of a seated person at a desk; the sliders change how far their neck and back bend.">
+      <line class="ps-floor" x1="10" y1="256" x2="290" y2="256" />
+      <path class="ps-chair" d="M70 120 L78 206 M78 206 L150 206 M112 206 L112 252 M90 252 L136 252" />
+      <path class="ps-desk" d="M196 176 H292 M276 176 V256" />
+      <path class="ps-desk" d="M246 176 V164 M234 164 H262 M258 164 L268 112" />
+      <g class="ps-person">
+        <path class="ps-legs" d="M120 200 L186 202 L186 252 L204 252" />
+        <line class="ps-torso" x1="120" y1="200" x2="120" y2="120" />
+        <line class="ps-arm" x1="120" y1="132" x2="214" y2="172" />
+        <line class="ps-neck" x1="120" y1="120" x2="120" y2="100" />
+        <circle class="ps-head" cx="120" cy="86" r="15" />
+        <path class="ps-guide" d="M120 120 L120 60" />
+      </g>
+    </svg>
+    <div class="ps-ctrl">
+      <label>Neck bend <output data-o="neck">5°</output>
+        <input type="range" min="0" max="45" value="5" data-k="neck" aria-describedby={`${id}-rules`} /></label>
+      <label>Back lean <output data-o="lean">3°</output>
+        <input type="range" min="0" max="30" value="3" data-k="lean" aria-describedby={`${id}-rules`} /></label>
+    </div>
+  </div>
+  <div class="ps-buddy">
+    <BuddyScreen id={`${id}-b`} mood="happy" msg="Looking good!" size={240} />
+    <p class="ps-state" data-state aria-live="polite">Good posture: no alert.</p>
+    <p class="ps-rules muted" id={`${id}-rules`}>Proposed rules (illustrative): neck over <b>15°</b> or back over <b>10°</b> for 60 s → gentle nudge; neck over <b>25°</b> or back over <b>20°</b> → alert.</p>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-ps]").forEach((root) => {
+    const q = <T extends Element>(s: string) => root.querySelector<T>(s)!;
+    const buddy = document.getElementById(root.dataset.buddyId!)!;
+    const msg = buddy.querySelector<HTMLElement>(".b-msg")!;
+    const state = q<HTMLElement>("[data-state]");
+    const inputs = [...root.querySelectorAll<HTMLInputElement>("input[type=range]")];
+    const rad = (d: number) => (d * Math.PI) / 180;
+    const set = (sel: string, a: Record<string, number>) => { const el = q<SVGElement>(sel); for (const k in a) el.setAttribute(k, a[k].toFixed(1)); };
+    const update = () => {
+      const neck = +inputs.find((i) => i.dataset.k === "neck")!.value;
+      const lean = +inputs.find((i) => i.dataset.k === "lean")!.value;
+      root.querySelectorAll<HTMLOutputElement>("output").forEach((o) => (o.textContent = `${o.dataset.o === "neck" ? neck : lean}°`));
+      const hx = 120, hy = 200, sx = hx + 80 * Math.sin(rad(lean)), sy = hy - 80 * Math.cos(rad(lean));
+      const n = rad(lean + neck), nx = sx + 20 * Math.sin(n), ny = sy - 20 * Math.cos(n);
+      set(".ps-torso", { x2: sx, y2: sy });
+      set(".ps-neck", { x1: sx, y1: sy, x2: nx, y2: ny });
+      set(".ps-head", { cx: nx + 14 * Math.sin(n), cy: ny - 14 * Math.cos(n) });
+      set(".ps-arm", { x1: hx + 68 * Math.sin(rad(lean)), y1: hy - 68 * Math.cos(rad(lean)) });
+      q<SVGPathElement>(".ps-guide").setAttribute("d", `M${sx.toFixed(1)} ${sy.toFixed(1)} L${sx.toFixed(1)} ${(sy - 60).toFixed(1)}`);
+      let mood = "happy", text = "Looking good!", s = "Good posture: no alert.";
+      if (neck > 25 || lean > 20) { mood = "alert"; text = "Sit up, please!"; s = "Alert: the light glows red, then a voice prompt if it continues."; }
+      else if (neck > 15 || lean > 10) { mood = "warn"; text = "Don't slouch!"; s = "Getting close: if this lasts 60 s, Buddy gives a gentle nudge."; }
+      buddy.dataset.mood = mood; msg.textContent = text; state.textContent = s;
+      root.dataset.level = mood;
+    };
+    inputs.forEach((i) => i.addEventListener("input", update)); update();
+  });
+</script>
+
+<style>
+  .ps { display: grid; gap: 28px; align-items: center; }
+  @media (min-width: 860px) { .ps { grid-template-columns: 1.2fr 1fr; } }
+  .ps-fig svg { width: 100%; max-width: 440px; display: block; margin: 0 auto; }
+  .ps svg line, .ps svg path, .ps svg circle { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .ps-floor { stroke: var(--edge); stroke-width: 2; }
+  .ps-chair, .ps-desk { stroke: var(--edge); stroke-width: 4; }
+  .ps-person line, .ps-legs { stroke: var(--ink); stroke-width: 7; transition: stroke .3s; }
+  .ps-head { stroke: var(--ink); stroke-width: 5; fill: var(--surface) !important; }
+  .ps-guide { stroke: var(--accent-ink); stroke-width: 1.5; stroke-dasharray: 4 5; }
+  .ps[data-level="warn"] .ps-torso, .ps[data-level="warn"] .ps-neck { stroke: #B88A12; }
+  .ps[data-level="alert"] .ps-torso, .ps[data-level="alert"] .ps-neck { stroke: var(--pink-ink); }
+  .ps-ctrl { display: grid; gap: 14px; max-width: 440px; margin: 14px auto 0; }
+  .ps-ctrl label { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; font-weight: 700; }
+  .ps-ctrl input { grid-column: 1 / -1; width: 100%; accent-color: var(--accent-ink); }
+  .ps-ctrl output { font-variant-numeric: tabular-nums; color: var(--accent-ink); }
+  .ps-buddy { display: grid; justify-items: center; gap: 10px; text-align: center; }
+  .ps-state { margin: 0; font-weight: 700; min-height: 2.6em; max-width: 30em; }
+  .ps-rules { margin: 0; font-size: .88rem; max-width: 32em; }
+</style>

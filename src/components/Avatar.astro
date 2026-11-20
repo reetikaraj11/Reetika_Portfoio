@@ -1,0 +1,103 @@
+---
+/* Illustrated persona avatars (no real faces). */
+interface Props { kind: "chittu" | "ramesh" | "arjun" | "platini" | "elder" | "rohit" | "ananya" | "vikram"; size?: number; }
+const { kind, size = 84 } = Astro.props;
+const skin = { chittu: "#F2C29B", ramesh: "#C98E63", arjun: "#E0A97E", elder: "#D9A27A", rohit: "#C68A5E", ananya: "#E3AE86", vikram: "#B97E55" } as const;
+const bg = { chittu: "var(--lemon-tint)", ramesh: "var(--sky-tint)", arjun: "var(--mint-tint)", platini: "var(--lav-tint)", elder: "var(--pink-tint)", rohit: "var(--sky-tint)", ananya: "var(--pink-tint)", vikram: "var(--lemon-tint)" }[kind];
+---
+<span class="avatar" style={`width:${size}px;height:${size}px;background:${bg}`} aria-hidden="true">
+  <svg viewBox="0 0 84 84" width={size} height={size}>
+    {kind === "chittu" && (
+      <g>
+        <circle cx="42" cy="50" r="23" fill={skin.chittu} />
+        <path d="M19 46 C 19 26, 34 20, 44 22 C 58 22, 67 32, 65 46 C 59 36, 50 34, 40 36 C 30 36, 23 40, 19 46 Z" fill="#3A2A22" />
+        <circle cx="18" cy="51" r="4" fill={skin.chittu} /><circle cx="66" cy="51" r="4" fill={skin.chittu} />
+        <circle cx="34" cy="52" r="2.6" fill="#25233A" /><circle cx="50" cy="52" r="2.6" fill="#25233A" />
+        <circle cx="29" cy="59" r="4" fill="var(--pink)" opacity=".8" /><circle cx="55" cy="59" r="4" fill="var(--pink)" opacity=".8" />
+        <path d="M36 61 Q 42 66 48 61" fill="none" stroke="#25233A" stroke-width="2.4" stroke-linecap="round" />
+      </g>
+    )}
+    {kind === "ramesh" && (
+      <g>
+        <path d="M14 84 C 16 68, 28 64, 42 64 C 56 64, 68 68, 70 84 Z" fill="var(--sky)" />
+        <circle cx="42" cy="42" r="21" fill={skin.ramesh} />
+        <path d="M21 40 C 21 24, 33 18, 43 19 C 56 19, 64 28, 63 40 C 58 31, 49 29, 41 30 C 32 30, 25 34, 21 40 Z" fill="#1F1A18" />
+        <circle cx="35" cy="44" r="2.5" fill="#25233A" /><circle cx="49" cy="44" r="2.5" fill="#25233A" />
+        <path d="M33 53 Q 42 49 51 53 Q 42 58 33 53 Z" fill="#1F1A18" />
+        <path d="M37 55 Q 42 57.5 47 55" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" />
+      </g>
+    )}
+    {kind === "arjun" && (
+      <g>
+        <path d="M14 84 C 16 68, 28 64, 42 64 C 56 64, 68 68, 70 84 Z" fill="var(--mint)" />
+        <circle cx="42" cy="42" r="21" fill={skin.arjun} />
+        <path d="M22 36 C 24 22, 36 17, 46 19 C 58 21, 64 30, 62 38 L 56 32 L 48 34 L 40 30 L 30 34 Z" fill="#2B2220" />
+        <rect x="28" y="40" width="12" height="9" rx="4" fill="none" stroke="#25233A" stroke-width="2" />
+        <rect x="44" y="40" width="12" height="9" rx="4" fill="none" stroke="#25233A" stroke-width="2" />
+        <path d="M40 44 h4" stroke="#25233A" stroke-width="2" />
+        <circle cx="34" cy="44.5" r="1.8" fill="#25233A" /><circle cx="50" cy="44.5" r="1.8" fill="#25233A" />
+        <path d="M37 55 Q 42 53 47 55" fill="none" stroke="#25233A" stroke-width="2.2" stroke-linecap="round" />
+      </g>
+    )}
+    {kind === "elder" && (
+      <g>
+        <path d="M14 84 C 16 68, 28 64, 42 64 C 56 64, 68 68, 70 84 Z" fill="var(--pink)" />
+        <circle cx="42" cy="42" r="21" fill={skin.elder} />
+        <path d="M21 42 C 19 30, 26 22, 34 22 C 30 28, 28 34, 27 42 Z M63 42 C 65 30, 58 22, 50 22 C 54 28, 56 34, 57 42 Z" fill="#E8E6EF" />
+        <circle cx="34" cy="45" r="6" fill="none" stroke="#25233A" stroke-width="2" /><circle cx="50" cy="45" r="6" fill="none" stroke="#25233A" stroke-width="2" />
+        <path d="M40 45 h4" stroke="#25233A" stroke-width="2" />
+        <circle cx="34" cy="45" r="1.8" fill="#25233A" /><circle cx="50" cy="45" r="1.8" fill="#25233A" />
+        <path d="M33 54 Q 42 50 51 54" fill="none" stroke="#E8E6EF" stroke-width="4" stroke-linecap="round" />
+        <path d="M37 57 Q 42 60 47 57" fill="none" stroke="#25233A" stroke-width="2" stroke-linecap="round" />
+      </g>
+    )}
+    {kind === "rohit" && (
+      <g>
+        <path d="M14 84 C 16 68, 28 64, 42 64 C 56 64, 68 68, 70 84 Z" fill="var(--sky)" />
+        <circle cx="42" cy="42" r="21" fill={skin.rohit} />
+        <path d="M21 39 C 20 24, 32 17, 43 18 C 56 18, 65 27, 63 39 C 60 32, 54 28, 47 31 C 40 27, 30 30, 21 39 Z" fill="#231B18" />
+        <path d="M30 41 l7 1 M47 42 l7 -1" stroke="#25233A" stroke-width="2" stroke-linecap="round" />
+        <circle cx="34" cy="45" r="2.3" fill="#25233A" /><circle cx="50" cy="45" r="2.3" fill="#25233A" />
+        <path d="M36 56 Q 42 53 48 56" fill="none" stroke="#25233A" stroke-width="2.2" stroke-linecap="round" />
+        <path d="M60 30 q4 4 2 9" fill="none" stroke="var(--sky-ink)" stroke-width="2" stroke-linecap="round" />
+      </g>
+    )}
+    {kind === "ananya" && (
+      <g>
+        <path d="M14 84 C 16 68, 28 64, 42 64 C 56 64, 68 68, 70 84 Z" fill="var(--pink)" />
+        <path d="M19 48 C 16 26, 30 16, 43 17 C 58 17, 69 28, 65 50 L 64 62 L 20 62 Z" fill="#2A1E1B" />
+        <circle cx="42" cy="43" r="19" fill={skin.ananya} />
+        <path d="M23 40 C 26 26, 36 22, 46 23 C 54 24, 60 30, 61 38 C 52 36, 44 31, 40 26 C 36 33, 30 37, 23 40 Z" fill="#2A1E1B" />
+        <circle cx="35" cy="46" r="2.3" fill="#25233A" /><circle cx="49" cy="46" r="2.3" fill="#25233A" />
+        <circle cx="30" cy="52" r="3" fill="var(--pink)" opacity=".8" /><circle cx="54" cy="52" r="3" fill="var(--pink)" opacity=".8" />
+        <path d="M37 55 Q 42 59 47 55" fill="none" stroke="#25233A" stroke-width="2.2" stroke-linecap="round" />
+        <circle cx="42" cy="33" r="1.6" fill="var(--pink-ink)" />
+      </g>
+    )}
+    {kind === "vikram" && (
+      <g>
+        <path d="M14 84 C 16 68, 28 64, 42 64 C 56 64, 68 68, 70 84 Z" fill="var(--lemon)" />
+        <circle cx="42" cy="43" r="21" fill={skin.vikram} />
+        <path d="M20 38 C 20 22, 34 16, 44 17 C 57 18, 65 26, 64 38 Z" fill="var(--lav-ink)" />
+        <path d="M18 38 h48" stroke="var(--lav-ink)" stroke-width="4" stroke-linecap="round" />
+        <circle cx="34" cy="46" r="2.4" fill="#25233A" /><circle cx="50" cy="46" r="2.4" fill="#25233A" />
+        <path d="M34 55 Q 42 61 50 55" fill="none" stroke="#25233A" stroke-width="2.2" stroke-linecap="round" />
+      </g>
+    )}
+    {kind === "platini" && (
+      <g>
+        <path d="M32 21 q -4 -6 0 -12 M42 19 q -4 -6 0 -12 M52 21 q -4 -6 0 -12" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" opacity=".7" />
+        <ellipse cx="42" cy="51" rx="30" ry="23" fill="#25233A" />
+        <ellipse cx="42" cy="49" rx="21" ry="14.5" fill="#45415C" />
+        <circle cx="35" cy="47" r="3.6" fill="#fff" /><circle cx="49" cy="47" r="3.6" fill="#fff" />
+        <circle cx="35.6" cy="47.8" r="1.8" fill="#25233A" /><circle cx="49.6" cy="47.8" r="1.8" fill="#25233A" />
+        <path d="M36 56 Q 42 53 48 56" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" />
+        <path d="M21 60 l 6 -3 M60 58 l 5 3 M28 68 l 3 -4" stroke="var(--pink)" stroke-width="2" stroke-linecap="round" />
+      </g>
+    )}
+  </svg>
+</span>
+<style>
+  .avatar { display: inline-grid; place-items: center; border-radius: 50%; overflow: hidden; flex: none; border: 1.5px solid var(--edge); }
+  .avatar svg { display: block; }
+</style>

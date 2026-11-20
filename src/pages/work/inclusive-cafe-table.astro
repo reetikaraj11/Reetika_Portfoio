@@ -1,0 +1,489 @@
+---
+import Base from "../../layouts/Base.astro";
+import Chapter from "../../components/Chapter.astro";
+import Stat from "../../components/Stat.astro";
+import Quote from "../../components/Quote.astro";
+import Fig from "../../components/Fig.astro";
+import Compare from "../../components/Compare.astro";
+import HeightChart from "../../components/HeightChart.astro";
+import Playground from "../../components/Playground.astro";
+import Methodology from "../../components/Methodology.astro";
+import "../../styles/case.css";
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+const img = (n: string) => `/work/habitat/${n}.webp`;
+
+/* ---------- data (all from the Habitat Study deck; page refs in comments) ---------- */
+// p27–30: "Rate your eating posture comfort (1–5)", 18 diners
+const comfort = [2, 4, 2, 5, 4, 2, 3, 2, 2, 4, 2, 2.5, 3.5, 1.5, 2, 2, 3, 2.5];
+const avgComfort = (comfort.reduce((a, b) => a + b, 0) / comfort.length).toFixed(1);
+// p57: wish votes (yes / no)
+const wishes = [
+  { k: "Stable & strong", yes: 14, no: 2 },
+  { k: "Relocatable yet secure", yes: 13, no: 1 },
+  { k: "Prevents spills from bumps", yes: 12, no: 2 },
+  { k: "Easy to clean", yes: 9, no: 6 },
+  { k: "Built-in storage", yes: 9, no: 9 },
+  { k: "Looks stylish", yes: 8, no: 0 },
+];
+// p139: decision criteria weights (100-point scale)
+const weights = [
+  { k: "Cost", w: 21 }, { k: "Ergonomic comfort", w: 21 }, { k: "Usage stability", w: 17 },
+  { k: "Portability", w: 13 }, { k: "Crashworthiness", w: 11 }, { k: "Safety", w: 7 },
+  { k: "Compactness", w: 6 }, { k: "Aesthetics", w: 2 }, { k: "Cleanliness", w: 2 },
+];
+// p7–9: 29 café problems in 7 categories (numbering skips 24)
+const categories = [
+  { k: "Service flow", n: 5 }, { k: "Hygiene", n: 4 }, { k: "Comfort & environment", n: 7 },
+  { k: "Accessibility", n: 4 }, { k: "Safety", n: 3 }, { k: "Health", n: 4 }, { k: "Social", n: 2 },
+];
+const concepts = [
+  { n: 1, t: "Pneumatic Actuated Table", d: "Pneumatic height adjustment, shock-absorbing grip edge, rubber anti-slip feet." },
+  { n: 2, t: "The Rail Table", d: "Abstract top on shock-absorbing bearings, sliding on floor rails." },
+  { n: 3, t: "Stewart Platform Table", d: "Hexapod legs keep the top level under bumps." },
+  { n: 4, t: "The Butterfly Table", d: "Telescopic arms carry tops at different heights on castors." },
+  { n: 5, t: "Modular Interlocking Table", d: "Honeycomb tops that interlock for groups, on a magnetic base." },
+  { n: 6, t: "Tensegrity Table", d: "Cable-tensioned frame with semi-permanent suction feet." },
+  { n: 7, t: "The Organic Table", d: "Nature-inspired generative supports, telescopic column." },
+  { n: 8, t: "Multi-Level Translation Table", d: "Stacked tops with pneumatic shock absorbers on rails." },
+  { n: 9, t: "Gyro-stabilised Stack", d: "Layered tops held level by a gyroscope." },
+  { n: 10, t: "Magnetic Stewart Table", d: "Cushioned top, hexapod base and magnetic floor grip." },
+];
+const decision = [
+  { m: "Ordinal ranking", r: "Pizza" }, { m: "Majority (6 vs 3)", r: "Pizza" }, { m: "Copeland rule", r: "Pizza" },
+  { m: "Rank-sum (12 vs 15)", r: "Pizza" }, { m: "Lexicographic", r: "Pizza" }, { m: "Pugh datum", r: "Pizza" },
+  { m: "Weighted objectives (785 vs 703)", r: "Pizza" },
+];
+const fmea = [
+  { part: "Ratchet teeth", mode: "Teeth strip under overload", s: 8, o: 4, fix: "Hardened, heat-treated steel teeth" },
+  { part: "Ratchet mechanism", mode: "Jams with dirt or corrosion", s: 5, o: 6, fix: "Sealed housing, anti-corrosion coat, self-lubricating parts" },
+  { part: "Rubber base", mode: "Degrades from UV & cleaning chemicals", s: 7, o: 5, fix: "UV-resistant EPDM compound" },
+  { part: "Base stability", mode: "Wobbles on uneven floors", s: 5, o: 7, fix: "Flexible, conformable rubber base" },
+  { part: "Overall weight", mode: "Too heavy to relocate", s: 6, o: 5, fix: "Aluminium, hollow sections" },
+];
+---
+<Base title="A Table for Everyone · Reetika Raj" description="Case study: redesigning a roadside café's fixed 125 cm table into a four-part, individually height-adjustable table.">
+<div class="case">
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <h1>A table for everyone</h1>
+      <p class="lede">At a busy roadside café in Bengaluru, every table stood 125 cm tall. Children tiptoed, grandparents strained and wheelchair users were left out. We redesigned it as <strong>four quarters that each set their own height</strong>.</p>
+      <div class="hero-tags">
+        <span class="sticker lav">Habitat study</span><span class="sticker sky">Role-play</span><span class="sticker pink">TRIZ</span><span class="sticker mint">FMEA</span><span class="sticker">FEA</span>
+      </div>
+    </div>
+    <div class="hero-art">
+      <Fig src={img("pizza-exploded")} alt="Render of the Pizza Table: four quarter-circle tabletops raised to different heights around one pedestal base" ratio="1/1" stage="dark" loading="eager" />
+      <div class="hero-note"><svg width="46" height="34" viewBox="0 0 46 34" aria-hidden="true"><path d="M40 30 C 30 28, 14 22, 8 6 M8 6 L4 16 M8 6 L16 12" fill="none" stroke="var(--lav-ink)" stroke-width="2.5" stroke-linecap="round"/></svg><span class="hand">each quarter moves on its own!</span></div>
+    </div>
+  </div>
+
+</header>
+
+<!-- ================= AT A GLANCE ================= -->
+<section class="glance">
+  <div class="wrap">
+    <div class="grid g3 reveal">
+      <div class="card ink tl"><span class="sticker pink">Problem</span><p>Fixed-height standing tables shut out children, elderly diners, shorter adults and wheelchair users — 25–30% of diners face barriers like this.</p></div>
+      <div class="card ink tl"><span class="sticker sky">Approach</span><p>Lived in the habitat, role-played its people (and a plate), surveyed 18 diners, then moved from requirements to 10 concepts, TRIZ, FMEA and seven decision methods.</p></div>
+      <div class="card ink tl"><span class="sticker mint">Outcome</span><p>The Pizza Table: four quarters with independent ratchet height adjustment, a cushioned edge and a suction-grip base, validated in CAD and with a physical model.</p></div>
+    </div>
+    <div class="grid g4 stats reveal">
+      <Stat num="125 cm" label="height of every table at the café" tone="pink" />
+      <Stat num="29 → 1" label="problems found, one chosen to solve" tone="lemon" />
+      <Stat num="10" label="concepts explored before deciding" tone="sky" />
+      <Stat num="7 / 7" label="decision methods picked the Pizza Table" tone="mint" />
+    </div>
+  </div>
+</section>
+
+<!-- ================= METHODOLOGY ================= -->
+<Chapter id="method" title="Methodology: how the table came together" lede="Eight steps, from a night at a busy café to a tested prototype." tone="white">
+  <Methodology steps={[
+    { label: "Habitat study", sub: "observe · role-play · ask" }, { label: "Survey", sub: "18 diners" },
+    { label: "Problem selection", sub: "29 problems → 1" }, { label: "Requirements", sub: "needs → metrics" },
+    { label: "Ideation", sub: "brainstorm & Synectics" }, { label: "TRIZ & FMEA", sub: "refine 2 concepts" },
+    { label: "Decision", sub: "7 methods" }, { label: "Simulation & prototype", sub: "FEA · physical model" },
+  ]} />
+</Chapter>
+
+<!-- ================= 01 HABITAT ================= -->
+<Chapter id="habitat" num="01" title="Into the habitat: a roadside café that never stops" lede="Rameshwaram Café in Bengaluru serves hundreds of people an hour on a tight footprint beside a busy road. We spent hours there, using three lenses to understand it." tone="white">
+  <div class="grid g3 lenses reveal">
+    <div class="lens">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="var(--sky-tint)"/><path d="M12 32 C 20 20, 44 20, 52 32 C 44 44, 20 44, 12 32 Z" fill="#fff" stroke="var(--edge)" stroke-width="3"/><circle cx="32" cy="32" r="7" fill="var(--edge)"/></svg>
+      <h3>Observe</h3><p class="muted">Stay in the habitat and watch how people order, wait, eat and leave.</p>
+    </div>
+    <div class="lens">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="var(--pink-tint)"/><path d="M16 22 h22 a6 6 0 0 1 6 6 v4 a6 6 0 0 1 -6 6 h-10 l-8 6 v-6 h-4 a6 6 0 0 1 -6 -6 v-4 a6 6 0 0 1 6 -6 z" fill="#fff" stroke="var(--edge)" stroke-width="3" stroke-linejoin="round"/><path d="M40 30 h6 a5 5 0 0 1 5 5 v3 a5 5 0 0 1 -5 5 h-1 v5 l-6 -5" fill="var(--pink)" stroke="var(--edge)" stroke-width="3" stroke-linejoin="round"/></svg>
+      <h3>Role-play</h3><p class="muted">Step into the shoes of the people — and objects — the habitat affects.</p>
+    </div>
+    <div class="lens">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="var(--lemon-tint)"/><rect x="18" y="14" width="28" height="36" rx="5" fill="#fff" stroke="var(--edge)" stroke-width="3"/><path d="M24 24 h16 M24 32 h16 M24 40 h10" stroke="var(--edge)" stroke-width="3" stroke-linecap="round"/></svg>
+      <h3>Ask</h3><p class="muted">Put a curated set of questions to diners and staff to surface pain points.</p>
+    </div>
+  </div>
+  <div class="mosaic reveal">
+    <Fig src={img("habitat-night")} alt="The café at night, packed with diners spilling onto the entrance steps" ratio="4/3" hand="9 pm, still packed" />
+    <Fig src={img("habitat-crowd")} alt="Crowd of diners queuing and standing inside the café" ratio="4/3" />
+    <Fig src={img("habitat-stairs")} alt="Diners sitting on staircases to eat because tables are full" ratio="4/3" hand="stairs become seats" />
+    <Fig src={img("habitat-kitchen")} alt="Open kitchen counter with staff serving food in leaf bowls" ratio="4/3" />
+    <Fig src={img("habitat-food")} alt="Plates of dosa, vada and chutneys on banana leaves" ratio="4/3" />
+    <Fig src={img("habitat-kiosk")} alt="Self-service ordering kiosk mounted on a wall" ratio="4/3" hand="kiosks confuse older diners" />
+  </div>
+</Chapter>
+
+<!-- ================= 02 OBSERVATION ================= -->
+<Chapter id="observe" num="02" title="What we saw: a 125 cm table works for some of us" lede="All 15 tables were identical: 125 cm tall with a 42 cm top that fits three people. Over two hours we counted about 200 customers — children, adults and elderly diners, mostly between 5 ft and 5′10″." tone="lav">
+  <div class="grid g-21 reveal">
+    <HeightChart />
+    <div class="stack">
+      <Fig src={img("obs-standing")} alt="A team member standing at one of the café's tall tables to gauge its height" ratio="3/4" hand="measuring it ourselves" />
+    </div>
+  </div>
+  <div class="grid g4 reveal" style="margin-top:28px">
+    <Stat num="15" label="identical tables, 13 inside and 2 in the lobby" tone="lav" />
+    <Stat num="42 cm" label="tabletop diameter — room for just 3 diners" tone="sky" />
+    <Stat num="~200" label="customers in 2 hours of observation" tone="lemon" />
+    <Stat num="2 of 3" label="height groups we observed felt discomfort" tone="pink" />
+  </div>
+  <div class="grid g3 reveal" style="margin-top:28px">
+    <div class="card"><h3>Kids need a boost</h3><p class="muted">Children under 10 couldn't use the table without standing on its footrest.</p></div>
+    <div class="card"><h3>Elders strain</h3><p class="muted">Elderly diners with back or knee issues ate in a strained posture.</p></div>
+    <div class="card"><h3>Stairs become dining rooms</h3><p class="muted">Most people gave up on the tables and ate on stairs and hallways instead.</p></div>
+  </div>
+</Chapter>
+
+<!-- ================= 03 VOICES ================= -->
+<Chapter id="voices" num="03" title="Role-play: walking in their shoes, even the plate's" lede="We wrote first-person stories for the people and objects the café affects. Saying it out loud made the pain points impossible to ignore." tone="plain">
+  <div class="grid g2 reveal">
+    <Quote who="chittu" name="Chittu, 9" meta="comes with his parents" tags={["Can't reach the table", "Traffic smoke", "Helps elders order"]}>
+      The tables are so high that I can barely reach them. I have to stretch on my tiptoes or sometimes kneel just to eat.
+    </Quote>
+    <Quote who="ramesh" name="Ramesh, 32" meta="one leg shorter than the other" tags={["Balance", "Standing fatigue", "Self-service"]}>
+      Standing at such a tall table makes me feel unbalanced, and I cannot place my plate comfortably without straining.
+    </Quote>
+    <Quote who="arjun" name="Arjun" meta="visits every evening after work" tags={["Shoulder strain", "Neck tilt", "Feels left out"]}>
+      When I place my tray on the table, I have to stretch my arms upward — it feels like I'm climbing just to set my food down.
+    </Quote>
+    <Quote who="platini" name="Platini" meta="a black plastic plate" tags={["Eaten off the floor", "Over-washed", "Worn out"]}>
+      Customers place me directly on the floor and eat from me while I lie there. On busy days, I get washed a hundred times.
+    </Quote>
+  </div>
+</Chapter>
+
+<!-- ================= 04 SURVEY ================= -->
+<Chapter id="survey" num="04" title={`What people told us: average posture comfort ${avgComfort} / 5`} lede="We asked 18 diners about height, stability, spills and comfort, and what they'd want from a better table. We also interviewed café staff." tone="sky">
+  <div class="grid g2 reveal">
+    <div class="card ink">
+      <h3>“Rate your eating posture comfort”</h3>
+      <p class="muted small">Each dot is one diner (1 = very uncomfortable, 5 = very comfortable; half-point answers rounded down)</p>
+      <div class="dots" role="img" aria-label={`Comfort ratings from 18 diners; average ${avgComfort} out of 5`}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <div class="dotcol">
+            <div class="dotstack">{comfort.filter((c) => Math.round(c - 0.01) === n || (n === 1 && c < 1.5)).map(() => <i />)}</div>
+            <span>{n}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="card ink">
+      <h3>What would you want?</h3>
+      <p class="muted small">Diners who said yes to each wish</p>
+      <ul class="bars" aria-label="Wish votes">
+        {wishes.map((w) => (
+          <li><span class="bl">{w.k}</span><span class="bt"><span class="bf" style={`width:${(w.yes / (w.yes + w.no)) * 100}%`}></span></span><span class="bv">{w.yes}/{w.yes + w.no}</span></li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</Chapter>
+
+<!-- ================= 05 PROBLEM SELECTION ================= -->
+<Chapter id="problem" num="05" title="Choosing what to solve: 29 problems in, one out" lede="We listed every problem we found, from queues to mosquito smoke, then ran each through three questions." tone="white">
+  <div class="cats reveal" aria-label="Problems by category">
+    {categories.map((c) => <span class="cat"><b>{c.n}</b>{c.k}</span>)}
+  </div>
+  <div class="flow card ink reveal">
+    <div class="node start">29 problems<small>7 categories</small></div>
+    <div class="arr" aria-hidden="true">→</div>
+    <div class="node q">Already solved well?<small>No → keep</small><span class="x">Yes → drop</span></div>
+    <div class="arr" aria-hidden="true">→</div>
+    <div class="node q">Will anyone pay for a fix?<small>Yes → keep</small><span class="x">No → drop</span></div>
+    <div class="arr" aria-hidden="true">→</div>
+    <div class="node q">Is there a product opportunity?<small>Yes → keep</small><span class="x">No → drop</span></div>
+    <div class="arr" aria-hidden="true">→</div>
+    <div class="node end">Chosen ✓</div>
+  </div>
+  <blockquote class="chosen reveal">Non-adaptable dining tables create an exclusionary environment, limiting equal access and comfort for people of different abilities, sizes, ages and mobility levels.</blockquote>
+</Chapter>
+
+<!-- ================= 06 MARKET ================= -->
+<Chapter id="market" num="06" title="Is it worth solving? A big market with a clear gap" lede="India's cafés are moving towards quick-service formats where high tables and standing counters are the norm — yet a large share of diners can't use them comfortably." tone="lemon">
+  <div class="grid g4 reveal">
+    <Stat num="₹4.2 lakh cr" label="Indian food-service market (2023), growing 9–10% a year" tone="lav" />
+    <Stat num="0.8–2.6 M" label="eateries in India, from small cafés to restaurants" tone="sky" />
+    <Stat num="26.8 M" label="persons with disabilities (Census 2011)" tone="pink" />
+    <Stat num="~20%" label="of India's population are children under 12" tone="mint" />
+  </div>
+  <div class="gap card ink reveal">
+    <div class="gap-side">
+      <img src={`${base}${img("competitor-bar")}`} alt="Typical chrome bar-height table with a gas lift" loading="lazy" />
+      <div><span class="chip">Cheap tables & stools</span><p class="big">₹12k – ₹24k</p><p class="muted">Affordable, but not inclusive.</p></div>
+    </div>
+    <div class="gap-mid"><span class="hand">the gap</span><p><strong>Affordable, compact, inclusive</strong> furniture for crowded Indian cafés</p></div>
+    <div class="gap-side">
+      <div><span class="chip">Accessible adjustable table</span><p class="big">₹1.8 lakh</p><p class="muted">ComforTek BFL-4 — inclusive, but costly and built for hospitals.</p></div>
+    </div>
+  </div>
+</Chapter>
+
+<!-- ================= 07 REQUIREMENTS ================= -->
+<Chapter id="requirements" num="07" title="From voices to specs: turning “I wish” into numbers" lede="Every stakeholder statement became an interpreted need, then a measurable target we could design and test against." tone="plain">
+  <div class="translate reveal">
+    <div class="tr-row">
+      <p class="say">“The table is too tall for normal chairs.”</p><span class="arr" aria-hidden="true">→</span>
+      <p class="need">Must be ergonomically comfortable for everyone</p><span class="arr" aria-hidden="true">→</span>
+      <p class="metric">Height adjustable from <b>650 to 1250 mm</b>, sized for the 5th-percentile Indian woman to the 95th-percentile man</p>
+    </div>
+    <div class="tr-row">
+      <p class="say">“When someone bumps the table, drinks spill.”</p><span class="arr" aria-hidden="true">→</span>
+      <p class="need">Must stay stable when bumped or leaned on</p><span class="arr" aria-hidden="true">→</span>
+      <p class="metric">Carries <b>150 kgf</b> with a safety factor of 2; no tipping at <b>15–30°</b> tilt</p>
+    </div>
+    <div class="tr-row">
+      <p class="say">“I need the table to be easily relocatable.”</p><span class="arr" aria-hidden="true">→</span>
+      <p class="need">Light enough to move, secure once placed</p><span class="arr" aria-hidden="true">→</span>
+      <p class="metric">Weighs <b>≤ 25 kg</b> so one person can move it</p>
+    </div>
+    <div class="tr-row">
+      <p class="say">“I'll pay if it costs about the same as now.”</p><span class="arr" aria-hidden="true">→</span>
+      <p class="need">Price close to existing tables</p><span class="arr" aria-hidden="true">→</span>
+      <p class="metric">Within <b>±10%</b> of the market average; adjusting takes <b>&lt; 30 s</b></p>
+    </div>
+  </div>
+  <div class="grid g2 reveal" style="margin-top:32px">
+    <div class="card ink">
+      <h3>Demands <span class="muted">— must have</span></h3>
+      <ul class="ticks">
+        <li>Simple and easy to use</li><li>Ergonomically comfortable</li><li>Compact footprint</li><li>Safe in every respect</li><li>Price close to existing tables</li>
+      </ul>
+    </div>
+    <div class="card ink">
+      <h3>What matters most when choosing</h3>
+      <p class="muted small">Criteria weights (out of 100) from the matrix method</p>
+      <ul class="bars">
+        {weights.map((w) => <li><span class="bl">{w.k}</span><span class="bt"><span class="bf alt" style={`width:${(w.w / 21) * 100}%`}></span></span><span class="bv">{w.w}</span></li>)}
+      </ul>
+    </div>
+  </div>
+</Chapter>
+
+<!-- ================= 08 REFRAMING ================= -->
+<Chapter id="reframe" num="08" title="Reframing: zooming out before zooming in" lede="We rewrote the problem without hinting at a solution, then climbed the abstraction ladder to see how big it really is." tone="mint">
+  <div class="grid g2 reveal">
+    <ol class="ladder">
+      <li><span class="lv">Level 3 · Abstract</span>Make sure everyone can take part equally in social and dining experiences, whatever their abilities.</li>
+      <li><span class="lv">Level 2 · Functional</span>Make public dining spaces easy to access and use for everyone.</li>
+      <li><span class="lv">Level 1 · Contextual</span>Make it easy and comfortable for people of all heights and abilities to eat at crowded roadside cafés with standing tables.</li>
+    </ol>
+    <div class="card ink snps">
+      <span class="sticker">Solution-neutral problem statement</span>
+      <p>Facilitate comfortable and accessible participation in dining-table activities for diverse users, irrespective of their physical, cognitive or social differences, in the shared eating environment of a roadside café.</p>
+    </div>
+  </div>
+  <div class="journey reveal">
+    <h3>The diner's journey: today vs. desired</h3>
+    <div class="jgrid">
+      {[
+        ["Enter", "Stairs from the road shut out wheelchair users", "One universal pathway for everyone"],
+        ["Find a spot", "Tables full — people sit on stairs and ledges", "A clean table that anyone can use"],
+        ["Eat", "Tables too high; awkward posture, leaning", "Everyone eats without strain"],
+        ["Stay steady", "Tables wobble; drinks spill when bumped", "Stable surface that absorbs bumps"],
+        ["Extras", "Trips back to the counter for cutlery", "Cutlery and napkins within reach"],
+        ["Reset", "Staff struggle to wipe high tops", "Quick cleaning; easy to relocate"],
+      ].map(([step, now, next]) => (
+        <div class="jcol"><b>{step}</b><p class="j-now">{now}</p><p class="j-next">{next}</p></div>
+      ))}
+    </div>
+  </div>
+</Chapter>
+
+<!-- ================= 09 IDEATION ================= -->
+<Chapter id="ideate" num="09" title="Ideation: 40+ ideas across four kinds of comfort" lede="We brainstormed around physical, environmental, cognitive and social comfort, then used Synectics to jump to ideas we wouldn't have reached directly." tone="white">
+  <div class="grid g4 reveal">
+    <div class="card tone-lav flat"><h3>Physical</h3><div class="tagset"><span>Pneumatic height</span><span>Add-on top for kids</span><span>Tilting top</span><span>Edge handles</span><span>Standing platform</span></div></div>
+    <div class="card tone-sky flat"><h3>Environmental</h3><div class="tagset"><span>Shock-absorbing table</span><span>Three-legged base</span><span>Air purifier</span><span>Leaning support</span><span>Lightweight frame</span></div></div>
+    <div class="card tone-lemon flat"><h3>Cognitive</h3><div class="tagset"><span>Call-to-order button</span><span>Self-cleaning top</span><span>Lockable rotating top</span><span>Suction under base</span><span>Floor tracks</span></div></div>
+    <div class="card tone-pink flat"><h3>Social</h3><div class="tagset"><span>Interlocking tables</span><span>Extendable top</span><span>Braille &amp; tactile cues</span><span>Bag hooks</span><span>Ramp nearby</span></div></div>
+  </div>
+  <div class="synectics card ink reveal">
+    <span class="sticker sky">Synectics · book-title excursion</span>
+    <p class="muted small">Problem: keep the table stable under bumps and leaning</p>
+    <div class="chain">
+      <span class="link">Cartoon</span><span class="arr">→</span><span class="link">“Silent Music”</span><span class="arr">→</span><span class="link">Coma</span><span class="arr">→</span><span class="link hl">Force-fit ideas</span>
+    </div>
+    <ul class="fits">
+      <li><b>Syringe head</b> → rubber padding on the table edge</li>
+      <li><b>Full stop</b> → a round, corner-free top</li>
+      <li><b>Stretcher</b> → a rigid yet foldable structure</li>
+      <li><b>Grounded devotion</b> → a low centre of mass</li>
+    </ul>
+  </div>
+</Chapter>
+
+<!-- ================= 10 CONCEPTS ================= -->
+<Chapter id="concepts" num="10" title="Ten concepts: mix, match, sketch" lede="A morphological chart crossed four options for each critical function — comfort, stability and relocation — into ten distinct concepts." tone="lav">
+  <div class="morph card ink reveal">
+    <table>
+      <thead><tr><th scope="col">Function</th><th scope="col">Option A</th><th scope="col">Option B</th><th scope="col">Option C</th><th scope="col">Option D</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Comfort</th><td class="on">Adjustable height</td><td>Max-area top shape</td><td class="on">Cushioned edges</td><td>Interconnectable</td></tr>
+        <tr><th scope="row">Stability</th><td>Shock-absorbing bearings</td><td>Stewart platform</td><td>Natural support structure</td><td>Tensegrity / gyroscope</td></tr>
+        <tr><th scope="row">Relocation</th><td class="on">Suction rubber pads</td><td>Locking castors</td><td>Electromagnetic grip</td><td>Wheels on rails</td></tr>
+      </tbody>
+    </table>
+    <p class="muted small" style="margin:10px 0 0">Highlighted: the path that later became the Pizza Table.</p>
+  </div>
+  <div class="gallery reveal" tabindex="0" aria-label="Ten concept illustrations, scroll sideways">
+    {concepts.map((c) => (
+      <figure class="cc">
+        <div class="cc-img"><img src={`${base}${img(`concept-c${c.n}`)}`} alt={`Concept C${c.n}: ${c.t}`} loading="lazy" /></div>
+        <figcaption><span class="chip">C{c.n}</span> <strong>{c.t}</strong><br /><span class="muted">{c.d}</span></figcaption>
+      </figure>
+    ))}
+  </div>
+  <p class="hand center" style="margin-top:8px">← scroll sideways →</p>
+</Chapter>
+
+<!-- ================= 11 TRIZ ================= -->
+<Chapter id="triz" num="11" title="Refining with TRIZ: solving contradictions, not compromising" lede="Two concepts went forward. For each, we listed useful and harmful functions, framed the contradictions and applied TRIZ inventive principles." tone="plain">
+  <div class="grid g-21 reveal">
+    <Compare before={img("concept-c1")} after={img("improved-c1")} beforeLabel="C1 · Pneumatic" afterLabel="Improved · Segmented ratchet" alt="the pneumatic table concept and its TRIZ-improved version with a split top and ratchet mechanism" />
+    <div class="stack">
+      <div class="triz"><p class="c">Everyone shares one height</p><p class="p">P1 Segmentation</p><p class="r">Split the top into four quarters, each with its own vertical motion</p></div>
+      <div class="triz"><p class="c">Pneumatic lift is expensive</p><p class="p">P28 Mechanics substitution</p><p class="r">Swap the gas cylinder for a ratchet-and-pawl mechanism</p></div>
+      <div class="triz"><p class="c">A cut rubber base makes it unstable</p><p class="p">P40 Composite materials</p><p class="r">Protective coating over the rubber base</p></div>
+      <div class="triz"><p class="c">Light aluminium dents easily</p><p class="p">P40 / P10</p><p class="r">Use a stronger aluminium alloy</p></div>
+    </div>
+  </div>
+  <div class="runner card reveal">
+    <div class="runner-imgs">
+      <Fig src={img("c4-sketch")} alt="Hand sketch of the improved butterfly concept: tops hooked onto a central column on castors" ratio="3/4" stage="white" />
+      <Fig src={img("steps-table")} alt="Render of the Steps Table: square wooden tops cantilevered at different heights from a steel column on castors" ratio="3/4" stage="dark" />
+    </div>
+    <div>
+      <span class="sticker sky">Runner-up · C4 → the Steps Table</span>
+      <p>The butterfly concept became detachable tops hooked onto a column at different heights. TRIZ gave it <b>retractable castors with stoppers</b> (P13 “the other way round”), <b>lockable joints</b> (P15 dynamics) and <b>coated, swappable tops</b> for quick cleaning (P10 preliminary action).</p>
+    </div>
+  </div>
+</Chapter>
+
+<!-- ================= 12 FMEA ================= -->
+<Chapter id="fmea" num="12" title="Designing out failure: what could go wrong, fixed in advance" lede="A failure-mode analysis scored each part for severity and occurrence, and every risk got a design change." tone="pink">
+  <div class="card ink fmea reveal">
+    <table>
+      <thead><tr><th scope="col">Part</th><th scope="col">Failure mode</th><th scope="col" class="n">Severity</th><th scope="col" class="n">Occurrence</th><th scope="col" class="n">Risk</th><th scope="col">Design change</th></tr></thead>
+      <tbody>
+        {fmea.map((f) => (
+          <tr><th scope="row">{f.part}</th><td>{f.mode}</td><td class="n"><span class="heat" style={`--h:${f.s / 10}`}>{f.s}</span></td><td class="n"><span class="heat" style={`--h:${f.o / 10}`}>{f.o}</span></td><td class="n"><b>{f.s * f.o}</b></td><td>{f.fix}</td></tr>
+        ))}
+      </tbody>
+    </table>
+    <p class="muted small" style="margin:12px 0 0">Risk = severity × occurrence, both on a 1–10 scale.</p>
+  </div>
+</Chapter>
+
+<!-- ================= 13 DECISION ================= -->
+<Chapter id="decide" num="13" title="The decision: seven methods, one answer" lede="We compared the two finalists against nine weighted criteria using seven different decision methods. Every one of them picked the same table." tone="white">
+  <div class="grid g2 reveal">
+    <div class="finalists">
+      <div class="fin win"><Fig src={img("pizza-assembled")} alt="Pizza Table render, all four quarters level as one round table" ratio="1/1" stage="dark" /><p><span class="sticker mint">Winner</span><br /><strong>A1 · Pizza Table</strong><br /><span class="muted">₹17.5k · 0.79 m² footprint</span></p></div>
+      <div class="fin"><Fig src={img("steps-table")} alt="Steps Table render" ratio="1/1" stage="dark" /><p><span class="sticker" style="visibility:hidden">Runner-up</span><br /><strong>A2 · Steps Table</strong><br /><span class="muted">≈ ₹25.5k · 3.6 m² footprint</span></p></div>
+    </div>
+    <div class="card ink score">
+      <ul>
+        {decision.map((d) => <li><span>{d.m}</span><span class="sticker mint">Pizza Table</span></li>)}
+      </ul>
+      <p class="muted small" style="margin:14px 0 0">The Steps Table did win on portability, looks and ergonomic comfort, but the Pizza Table led on cost, stability, crashworthiness, safety, compactness and cleaning.</p>
+    </div>
+  </div>
+</Chapter>
+
+<!-- ================= 14 FINAL DESIGN ================= -->
+<Chapter id="final" num="14" title="Final design: the Pizza Table" lede="One round table that splits into four quarters. Each quarter rises or drops on its own ratchet, so a child, a wheelchair user and a tall adult can share one table, each at their own height." tone="lav">
+  <div class="grid g2 reveal">
+    <Fig src={img("pizza-motion-low")} alt="Pizza Table with all quarters lowered" ratio="6/5" stage="white" caption="Mechanism motion study — quarters lowered" />
+    <Fig src={img("pizza-motion-high")} alt="Pizza Table with all quarters raised" ratio="6/5" stage="white" caption="…and raised" />
+  </div>
+  <div class="features reveal">
+    <div class="feat"><b>4 independent quarters</b><span>Each set to its own height</span></div>
+    <div class="feat"><b>Ratchet &amp; pawl</b><span>Lift to raise; hold the lever to lower</span></div>
+    <div class="feat"><b>Nitrile foam edge</b><span>Soft, shock-absorbing grip edge</span></div>
+    <div class="feat"><b>Suction-pad base</b><span>Grips the floor; releases to move</span></div>
+    <div class="feat"><b>Aluminium 7075</b><span>Strong yet light enough to move</span></div>
+  </div>
+  <h3 class="try reveal">Try it — give everyone their own height</h3>
+  <div class="reveal"><Playground /><p class="muted small" style="margin-top:10px">Heights shown are illustrative; the adjustable range is 650–1250 mm.</p></div>
+  <div class="reveal" style="margin-top:28px">
+    <Fig src={img("pizza-ortho")} alt="Digital model views of the Pizza Table: top, front, bottom, side and isometric" stage="white" caption="Digital model — top, front, bottom, side and isometric views (Autodesk Fusion)" />
+  </div>
+</Chapter>
+
+<!-- ================= 15 VALIDATION ================= -->
+<Chapter id="validate" num="15" title="Validation: tested in CAD, on paper and by hand" lede="We checked the critical functions three ways: virtual simulation, hand calculations and physical models." tone="plain">
+  <div class="grid g2 reveal">
+    <Fig src={img("fea-comfort")} alt="Stress plot of a tabletop quarter under an edge load, mostly low stress" ratio="16/10" stage="white" caption="<b>Comfort:</b> a 500 N lean at 45° on the nitrile edge — the maximum lean that stays comfortable on skin and muscle." />
+    <Fig src={img("fea-safety")} alt="Displacement plot of the assembled table under a vertical load" ratio="16/10" fit="contain" stage="white" caption="<b>Safety:</b> 1500 N (150 kgf) pressing on the top. Minimum safety factor <b>2.42</b> against a target of 2.0." />
+  </div>
+  <div class="grid g3 reveal" style="margin-top:24px">
+    <Stat num="2.42" label="minimum safety factor under 150 kgf (target 2.0)" tone="mint" />
+    <Stat num="−74%" label="bending stress on the ratchet tooth after redesign" tone="sky" />
+    <Stat num="26.6°" label="largest tooth angle that keeps the ratchet self-locking (μ = 0.5)" tone="lemon" />
+  </div>
+  <div class="grid g-12 reveal" style="margin-top:24px">
+    <Fig src={img("ratchet-calc")} alt="Handwritten calculation of ratchet tooth bending stress: 128.55 MPa, below the 425 MPa limit" ratio="16/10" caption="Widening the tooth base 1.5× and thickening it 1.6× brought the stress down to 128.55 MPa, well under the 425 MPa limit." />
+    <div class="protos">
+      <Fig src={img("proto-column")} alt="Physical prototype: aluminium column standing on a yellow suction-cup base" ratio="3/4" hand="suction base prototype" />
+      <Fig src={img("proto-suction")} alt="Close-up of the suction cups gripping a smooth floor tile" ratio="3/4" />
+      <Fig src={img("proto-steps-cardboard")} alt="Cardboard model of the Steps Table with tops at different heights" ratio="3/4" hand="Steps Table mock-up" />
+    </div>
+  </div>
+</Chapter>
+
+<!-- ================= 16 REFLECTION ================= -->
+<Chapter id="reflect" num="16" title="Outcome and reflection: what we built, and what I learned" tone="mint">
+  <div class="grid g2 reveal">
+    <div class="card ink">
+      <h3>Outcome</h3>
+      <ul class="ticks">
+        <li>A shared café table where four people each choose their height</li>
+        <li>Estimated cost of ₹17.5k, against ₹1.8 lakh for the closest accessible competitor</li>
+        <li>Compact: about 0.79 m², the footprint of a 1 m round table</li>
+        <li>Strength checked by FEA and hand calculation; suction base tested physically</li>
+      </ul>
+    </div>
+    <div class="card ink">
+      <h3>What I learned</h3>
+      <ul class="ticks">
+        <li><b>Role-playing objects works.</b> Platini the plate surfaced hygiene issues no survey question asked about.</li>
+        <li><b>Converge with several methods.</b> Seven decision methods agreeing made the choice easy to defend.</li>
+        <li><b>Contradictions spark ideas.</b> “Everyone shares one height” turned into four quarters.</li>
+        <li><b>Next:</b> a full-scale working prototype tested with real diners at the café.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="box-quote reveal">“Essentially, all models are wrong, but some are useful.” <span>— George E. P. Box</span></p>
+</Chapter>
+
+<section class="back">
+  <div class="wrap">
+    <a class="btn primary back-btn" href={`${base}/`}><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11 3.5 5.5 9l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Back to main page</a>
+  </div>
+</section>
+
+</div>
+</Base>

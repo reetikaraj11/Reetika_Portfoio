@@ -1,0 +1,77 @@
+---
+/*
+  Stepped, dashed methodology line: each step sits on its own level and the path
+  drops or rises between them. Labels sit above the line for high and middle
+  steps, below it for low steps. Below 960px it becomes a stepped vertical list.
+*/
+interface Step { label: string; sub?: string; }
+interface Props { steps: Step[]; }
+const { steps } = Astro.props;
+const W = 1000, H = 320, X0 = 6, X1 = 994;
+const ys = [86, 182, 252];
+const pattern = [0, 2, 0, 1, 2, 0, 2, 1, 0, 2];
+const n = steps.length, seg = (X1 - X0) / n;
+const pts = steps.map((s, i) => ({ ...s, lv: pattern[i % pattern.length], x0: X0 + i * seg, x1: X0 + (i + 1) * seg }));
+let d = `M ${X0} ${ys[pts[0].lv]}`;
+pts.forEach((p, i) => {
+  d += ` H ${p.x1 - (i === n - 1 ? 40 : 0)}`;
+  if (i < n - 1) d += ` V ${ys[pts[i + 1].lv]}`;
+});
+const pc = (v: number, of: number) => `${(v / of) * 100}%`;
+---
+<div class="method reveal" data-method>
+  <div class="m-desk" style={`aspect-ratio:${W}/${H}`}>
+    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
+      <path d={d} vector-effect="non-scaling-stroke" />
+    </svg>
+    {pts.map((p, i) => {
+      const dx = p.x0 + 26, y = ys[p.lv], up = p.lv < 2, last = i === n - 1;
+      return (
+        <div class:list={["m-step", up ? "up" : "down", { last }]} style={`left:${pc(dx, W)};top:${pc(y, H)};--i:${i};--w:${pc(seg - 34, W)}`}>
+          <span class="m-dot"></span>
+          <span class="m-stem"></span>
+          <div class="m-label"><span class="m-n">{String(i + 1).padStart(2, "0")}</span>{p.label}{p.sub && <small>{p.sub}</small>}</div>
+        </div>
+      );
+    })}
+  </div>
+  <ol class="m-mob">
+    {pts.map((p, i) => (
+      <li style={`--i:${i}`} class:list={{ off: i % 2 === 1 }}>
+        <span class="m-n">{String(i + 1).padStart(2, "0")}</span><b>{p.label}</b>{p.sub && <small>{p.sub}</small>}
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .method { --mc: var(--accent-ink); }
+  .m-desk { position: relative; width: 100%; }
+  .m-desk svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; clip-path: inset(0 100% 0 0); transition: clip-path 1.9s cubic-bezier(.6, .1, .3, 1) .15s; }
+  .m-desk path { fill: none; stroke: var(--mc); stroke-width: 2; stroke-dasharray: 6 6; opacity: .8; }
+  .m-step { position: absolute; width: 0; height: 0; opacity: 0; transition: opacity .5s ease calc(.35s + var(--i) * .17s); }
+  .m-dot { position: absolute; left: -7px; top: -7px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2px solid var(--mc); }
+  .last .m-dot { left: -10px; top: -10px; width: 20px; height: 20px; background: var(--mc); }
+  .m-stem { position: absolute; left: -1px; width: 2px; height: 22px; background: var(--mc); }
+  .up .m-stem { bottom: 0; } .down .m-stem { top: 0; }
+  .m-label { position: absolute; left: 8px; width: var(--w); min-width: 96px; font: 700 clamp(.82rem, 1.25vw, 1rem)/1.25 var(--f-body); color: var(--ink); }
+  .up .m-label { bottom: 14px; } .down .m-label { top: 14px; }
+  .m-label small { display: block; font-weight: 500; color: var(--muted); font-size: .82em; margin-top: 2px; }
+  .m-n { display: block; font: 800 .7rem var(--f-head); letter-spacing: .08em; color: var(--mc); margin-bottom: 2px; }
+  .method.in .m-desk svg { clip-path: inset(0 0 0 0); }
+  .method.in .m-step { opacity: 1; }
+
+  .m-mob { display: none; list-style: none; margin: 0; padding: 0 0 0 8px; }
+  .m-mob li { position: relative; margin-left: 0; padding: 12px 0 14px 26px; border-left: 2px dashed color-mix(in srgb, var(--mc) 70%, transparent); }
+  .m-mob li.off { margin-left: 34px; }
+  .m-mob li::before { content: ""; position: absolute; left: -8px; top: 16px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2px solid var(--mc); }
+  .m-mob li + li::after { content: ""; position: absolute; top: -1px; width: 34px; border-top: 2px dashed color-mix(in srgb, var(--mc) 70%, transparent); }
+  .m-mob li.off + li::after { left: -2px; }
+  .m-mob li:not(.off) + li.off::after { left: -36px; }
+  .m-mob li:last-child::before { background: var(--mc); }
+  .m-mob b { display: block; line-height: 1.3; }
+  .m-mob small { color: var(--muted); }
+
+  @media (max-width: 959px) { .m-desk { display: none; } .m-mob { display: block; } }
+  @media (prefers-reduced-motion: reduce) { .m-desk svg, .m-step { transition: none; clip-path: none; opacity: 1; } }
+</style>
