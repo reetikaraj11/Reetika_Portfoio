@@ -76,7 +76,7 @@ const id = `ps${Math.random().toString(36).slice(2, 7)}`;
   .ps-person line, .ps-legs { stroke: var(--ink); stroke-width: 7; transition: stroke .3s; }
   .ps-head { stroke: var(--ink); stroke-width: 5; fill: var(--surface) !important; }
   .ps-guide { stroke: var(--accent-ink); stroke-width: 1.5; stroke-dasharray: 4 5; }
-  .ps[data-level="warn"] .ps-torso, .ps[data-level="warn"] .ps-neck { stroke: #B88A12; }
+  .ps[data-level="warn"] .ps-torso, .ps[data-level="warn"] .ps-neck { stroke: var(--a-ink); }
   .ps[data-level="alert"] .ps-torso, .ps[data-level="alert"] .ps-neck { stroke: var(--pink-ink); }
   .ps-ctrl { display: grid; gap: 14px; max-width: 440px; margin: 14px auto 0; }
   .ps-ctrl label { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; font-weight: 700; }

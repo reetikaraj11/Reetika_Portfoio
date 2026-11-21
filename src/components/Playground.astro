@@ -19,7 +19,7 @@ const xs = [95, 245, 395, 545];
     <path d={`M250 ${G} q 70 -40 140 0 Z`} fill="var(--edge)" opacity=".9" />
     {segs.map((s, i) => (
       <g data-seg={i}>
-        <rect class="col" x={xs[i] - 6} y={G - s.h * S} width="12" height={s.h * S} rx="4" fill="#B9B6C9" stroke="var(--edge)" stroke-width="2" />
+        <rect class="col" x={xs[i] - 6} y={G - s.h * S} width="12" height={s.h * S} rx="4" fill="var(--a-tint)" stroke="var(--edge)" stroke-width="2" />
         <rect class="top" x={xs[i] - 58} y={G - s.h * S - 12} width="116" height="14" rx="7" fill={s.color} stroke="var(--edge)" stroke-width="2.5" />
         <text class="val" x={xs[i]} y={G - s.h * S - 22} text-anchor="middle" font-size="15" font-weight="800" font-family="var(--f-body)" fill="var(--ink)">{s.h} mm</text>
       </g>

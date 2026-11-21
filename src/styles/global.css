@@ -106,3 +106,86 @@ input[type="text"], input[type="email"], textarea { cursor: text; }
 .btn:active { transform: translate(0, 0) scale(.98); }
 .back-btn svg { transition: transform .25s cubic-bezier(.2, .7, .2, 1); }
 .back-btn:hover svg { transform: translateX(-3px); }
+
+/* ============ Page themes: two complementary colours + a top-to-bottom blend ============ */
+/* Every page maps the shared colour names onto just two hues (A and B).
+   lav/sky/mint -> A family, pink/lemon -> B family. The crib page keeps the full palette. */
+body[class*="theme-"]:not(.theme-crib) {
+  --lav: var(--a); --lav-ink: var(--a-ink); --lav-tint: var(--a-tint);
+  --sky: var(--a2); --sky-ink: var(--a-ink); --sky-tint: var(--a-tint);
+  --mint: var(--a2); --mint-ink: var(--a-ink); --mint-tint: var(--a-tint);
+  --pink: var(--b); --pink-ink: var(--b-ink); --pink-tint: var(--b-tint);
+  --lemon: var(--b2); --lemon-ink: var(--b-ink); --lemon-tint: var(--b-tint);
+  --accent: var(--a); --accent-ink: var(--a-ink); --accent-tint: var(--a-tint);
+  --shadow-c: color-mix(in srgb, var(--a) 45%, #fff);
+  --bad: var(--b); --mid: var(--b2); --good: var(--a2);
+  --shadow: 4px 4px 0 var(--shadow-c);
+  --bg: color-mix(in srgb, var(--a-tint) 55%, #fff);
+}
+/* lavender + butter gold */
+.theme-home, .theme-table {
+  --a: #B3A8EC; --a2: #CFC7F4; --a-ink: #5546AD; --a-tint: #EDEAFA;
+  --b: #EAD58B; --b2: #F3E6B5; --b-ink: #7A6410; --b-tint: #FBF4DA;
+}
+/* sky blue + peach */
+.theme-aasan {
+  --a: #A9D3EA; --a2: #C8E3F2; --a-ink: #1F6488; --a-tint: #E6F2F9;
+  --b: #F4BFA1; --b2: #F8D6C2; --b-ink: #A0461F; --b-tint: #FCEDE4;
+}
+/* warm sand + periwinkle */
+.theme-posture {
+  --a: #E8C891; --a2: #F1DAB3; --a-ink: #7A5418; --a-tint: #FBF1DF;
+  --b: #ABB5EC; --b2: #CBD2F4; --b-ink: #3D4A9E; --b-tint: #ECEFFC;
+}
+/* crib: sea mist at the top, sand at the bottom (palette untouched) */
+.theme-crib { --a-tint: #E6F1F9; --b-tint: #FBEEE2; }
+
+/* The blend fills exactly one screen and stays put; the page content scrolls over it. */
+html { background: #F7F5FB; }
+body[class*="theme-"] { background: transparent; min-height: 100vh; }
+body[class*="theme-"]::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, var(--a-tint) 0%, var(--a-tint) 36%, var(--b-tint) 64%, var(--b-tint) 100%);
+}
+
+/* ============ Section-heading typefaces per project ============ */
+/* Installed Windows fonts first; a close free lookalike for visitors who don't have them. */
+.theme-table { --f-sec: "Broadway", "Limelight", serif; --sec-size: .82; }
+.theme-aasan { --f-sec: "Kristen ITC", "Delius", cursive; --sec-size: .9; }
+.theme-posture { --f-sec: "Chiller", "Creepster", fantasy; --sec-size: 1.25; }
+.theme-crib { --f-sec: "Harrington", "Almendra Display", serif; --sec-size: 1; }
+body[class*="theme-"] .ch-text h2, .theme-crib .divider h2 {
+  font-family: var(--f-sec, var(--f-display)); font-weight: 400; letter-spacing: 0; font-style: normal;
+  font-size: calc(clamp(1.9rem, 3.6vw, 2.9rem) * var(--sec-size, 1));
+}
+.theme-crib .divider h2 { font-size: clamp(2.6rem, 6vw, 4.4rem); }
+
+/* Home: MV Boli everywhere except the ID card */
+.theme-home {
+  --f-display: "MV Boli", "Patrick Hand", cursive;
+  --f-head: "MV Boli", "Patrick Hand", cursive;
+  --f-body: "MV Boli", "Patrick Hand", cursive;
+  --f-hand: "MV Boli", "Patrick Hand", cursive;
+}
+.theme-home .badge {
+  --f-display: "Newsreader", Georgia, serif;
+  --f-head: "Bricolage Grotesque", system-ui, sans-serif;
+  --f-body: "Nunito Sans", system-ui, sans-serif;
+  font-family: var(--f-body);
+}
+
+/* ============ Images float gently ============ */
+@keyframes img-float { 0%, 100% { translate: 0 -3px; } 50% { translate: 0 3px; } }
+img, .co-img, .hs-img, .compare, .q-wrap, .mat-img {
+  animation: img-float 7s ease-in-out infinite; animation-delay: var(--fd, 0s);
+}
+/* overlays stay locked to their image: the container floats instead */
+.co-img img, .hs-img img, .compare img, .q-wrap img, .mat-img img, .badge img { animation: none; }
+/* cover-cropped images in clipped frames get a hair of overscan so no edge shows */
+.frame img, .arch img, .pt-img img, .pb-cover img { scale: 1.03; }
+@media (prefers-reduced-motion: reduce) {
+  img, .co-img, .hs-img, .compare, .q-wrap, .mat-img { animation: none; }
+}
+
+/* Home: name only in the top bar, no "R" badge */
+.theme-home .logo-blob { display: none; }

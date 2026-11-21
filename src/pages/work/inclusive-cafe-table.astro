@@ -62,8 +62,8 @@ const fmea = [
   { part: "Overall weight", mode: "Too heavy to relocate", s: 6, o: 5, fix: "Aluminium, hollow sections" },
 ];
 ---
-<Base title="A Table for Everyone · Reetika Raj" description="Case study: redesigning a roadside café's fixed 125 cm table into a four-part, individually height-adjustable table.">
-<div class="case">
+<Base title="A Table for Everyone · Reetika Raj" description="Case study: redesigning a roadside café's fixed 125 cm table into a four-part, individually height-adjustable table." theme="table">
+<div class="case" data-skin="rule">
 
 <!-- ================= HERO ================= -->
 <header class="hero">
@@ -348,7 +348,7 @@ const fmea = [
     </table>
     <p class="muted small" style="margin:10px 0 0">Highlighted: the path that later became the Pizza Table.</p>
   </div>
-  <div class="gallery reveal" tabindex="0" aria-label="Ten concept illustrations, scroll sideways">
+  <div class="gallery marquee reveal" tabindex="0" aria-label="Ten concept illustrations. They scroll on their own; hover to pause, or scroll sideways." data-marquee>
     {concepts.map((c) => (
       <figure class="cc">
         <div class="cc-img"><img src={`${base}${img(`concept-c${c.n}`)}`} alt={`Concept C${c.n}: ${c.t}`} loading="lazy" /></div>
@@ -356,7 +356,33 @@ const fmea = [
       </figure>
     ))}
   </div>
-  <p class="hand center" style="margin-top:8px">← scroll sideways →</p>
+  <p class="hand center" style="margin-top:8px">hover to pause · scroll sideways to browse</p>
+  <script>
+    // Endless, self-scrolling concept strip. The set is cloned once; when the scroll position
+    // passes the end of the first set it jumps back by exactly one set width, which is invisible.
+    // Pauses while hovered, focused or touched; the scrollbar still works for manual browsing.
+    document.querySelectorAll<HTMLElement>("[data-marquee]").forEach((el) => {
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const items = [...el.children] as HTMLElement[];
+      items.forEach((n) => { const c = n.cloneNode(true) as HTMLElement; c.setAttribute("aria-hidden", "true"); c.querySelectorAll("img").forEach((i) => (i.alt = "")); el.appendChild(c); });
+      const setWidth = () => (el.children[items.length] as HTMLElement).offsetLeft - items[0].offsetLeft;
+      let pos = 0, last = 0, paused = false, resumeT = 0, w = setWidth();
+      const wrap = () => { if (pos >= w) pos -= w; else if (pos < 0) pos += w; };
+      const pause = () => { paused = true; clearTimeout(resumeT); };
+      const resume = (delay = 0) => { clearTimeout(resumeT); resumeT = window.setTimeout(() => { paused = false; pos = el.scrollLeft; }, delay); };
+      el.addEventListener("pointerenter", pause); el.addEventListener("pointerleave", () => resume(300));
+      el.addEventListener("focusin", pause); el.addEventListener("focusout", () => resume(300));
+      el.addEventListener("touchstart", pause, { passive: true }); el.addEventListener("touchend", () => resume(2500));
+      el.addEventListener("scroll", () => { if (paused) { pos = el.scrollLeft; const p = pos; wrap(); if (p !== pos) el.scrollLeft = pos; } }, { passive: true });
+      addEventListener("resize", () => { w = setWidth(); });
+      const tick = (t: number) => {
+        const dt = Math.min(0.05, (t - (last || t)) / 1000); last = t;
+        if (!paused) { pos += 38 * dt; wrap(); el.scrollLeft = pos; }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  </script>
 </Chapter>
 
 <!-- ================= 11 TRIZ ================= -->
@@ -364,10 +390,10 @@ const fmea = [
   <div class="grid g-21 reveal">
     <Compare before={img("concept-c1")} after={img("improved-c1")} beforeLabel="C1 · Pneumatic" afterLabel="Improved · Segmented ratchet" alt="the pneumatic table concept and its TRIZ-improved version with a split top and ratchet mechanism" />
     <div class="stack">
-      <div class="triz"><p class="c">Everyone shares one height</p><p class="p">P1 Segmentation</p><p class="r">Split the top into four quarters, each with its own vertical motion</p></div>
-      <div class="triz"><p class="c">Pneumatic lift is expensive</p><p class="p">P28 Mechanics substitution</p><p class="r">Swap the gas cylinder for a ratchet-and-pawl mechanism</p></div>
-      <div class="triz"><p class="c">A cut rubber base makes it unstable</p><p class="p">P40 Composite materials</p><p class="r">Protective coating over the rubber base</p></div>
-      <div class="triz"><p class="c">Light aluminium dents easily</p><p class="p">P40 / P10</p><p class="r">Use a stronger aluminium alloy</p></div>
+      <div class="triz"><p class="c">Everyone shares one height</p><p class="r">Split the top into four quarters, each with its own vertical motion</p></div>
+      <div class="triz"><p class="c">Pneumatic lift is expensive</p><p class="r">Swap the gas cylinder for a ratchet-and-pawl mechanism</p></div>
+      <div class="triz"><p class="c">A cut rubber base makes it unstable</p><p class="r">Protective coating over the rubber base</p></div>
+      <div class="triz"><p class="c">Light aluminium dents easily</p><p class="r">Use a stronger aluminium alloy</p></div>
     </div>
   </div>
   <div class="runner card reveal">

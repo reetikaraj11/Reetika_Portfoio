@@ -10,6 +10,11 @@ const projects = [
     tags: ["Habitat study", "TRIZ", "FEA"], img: "/work/habitat/pizza-exploded.webp", imgBg: "#000000", tone: "lav",
   },
   {
+    href: "/work/crib-collection", title: "Beneath the Water, Into the Snow",
+    blurb: "A 13-piece mermaid crib collection and a penguin play gym, designed from print to prototype within a $150 cost limit.",
+    tags: ["Surface design", "Illustration", "Textiles"], img: "/work/crib/hero-crib.webp", imgBg: "#F3EEF2", tone: "pink",
+  },
+  {
     href: "/work/posture-buddy", title: "Posture Buddy",
     blurb: "A desk friend that notices slouching and fatigue, and nudges you back with gentle reminders.",
     tags: ["Personas", "Usability testing", "AI"], img: "/work/posture-buddy/cover.webp", imgBg: "#FDE9C7", tone: "lemon",
@@ -17,22 +22,17 @@ const projects = [
   {
     href: "/work/aasan", title: "Aasan",
     blurb: "A study chair with a fold-over desk, knee and foot support, and open armrests for sitting cross-legged.",
-    tags: ["Anthropometry", "Survey", "Prototype"], img: "/work/covers/aasan.webp", imgBg: "#000000", tone: "sky",
-  },
-  {
-    href: "/work/crib-collection", title: "Beneath the Water, Into the Snow",
-    blurb: "A 13-piece mermaid crib collection and a penguin play gym, designed from print to prototype within a $150 cost limit.",
-    tags: ["Surface design", "Illustration", "Textiles"], img: "/work/crib/hero-crib.webp", imgBg: "#F3EEF2", tone: "pink",
+    tags: ["Anthropometry", "Survey", "Prototype"], img: "/work/aasan/chair-cutout.webp", imgBg: "radial-gradient(120% 95% at 50% 38%, #FFFFFF 0%, #EDEAFA 52%, #F5E7B8 100%)", tone: "sky",
   },
 ];
 ---
-<Base title="Reetika Raj · Product Design, Development & Management">
+<Base title="Reetika Raj · Product Design, Development & Management" theme="home">
   <section class="hero">
     <div class="wrap hero-grid">
       <div class="intro">
         <span class="sticker lav">Hello!</span>
         <h1>I'm Reetika.</h1>
-        <p class="lede">Experience designer with 2 years in industry, now doing an M.Des in Product Design at IISc Bengaluru. I start with people — observing, role-playing, asking — and turn what I learn into products that are feasible to make.</p>
+        <p class="lede">Experience designer with 2 years in industry, now doing an M.Des in Product Design at IISc Bengaluru. I make everyday things that feel kinder to use - for the child at the café table, the student in a long lecture, the baby in the cot.</p>
         <div class="cta-row">
           <a class="btn primary" href="#work">See my work ↓</a>
           <a class="btn" href={`${base}/Reetika_Raj_CV.pdf`}>Download CV</a>
@@ -53,6 +53,8 @@ const projects = [
     <div class="wrap narrow">
       <h2>About me</h2>
       <p class="lede">Before IISc, I spent two years at Casilla Living designing seasonal home and kids' collections for international buyers, after a B.Des in Textile Design from NIFT Delhi. Most recently I researched caregiver burnout at A Super Hero, an autism-awareness platform.</p>
+      <p class="lede">Working with international buyers taught me that a good design also has to be on time, on budget and right for the business. That is what drew me to product management: deciding what to build and why, and bringing research, design and production together to get it made.</p>
+      <p class="lede">Away from the desk, I am usually travelling somewhere new, trekking up a hill, photographing the nature I find along the way, or listening to songs on the long ride back.</p>
       <a class="btn primary" href={`${base}/Reetika_Raj_CV.pdf`}>Download CV</a>
     </div>
   </section>
@@ -62,7 +64,7 @@ const projects = [
   .hero-grid { display: grid; gap: 8px; align-items: center; min-height: calc(100svh - 67px); }
   @media (min-width: 900px) { .hero-grid { grid-template-columns: 1.05fr .95fr; } }
   .intro { padding: 32px 0; }
-  .intro .sticker { margin-bottom: 18px; }
+  .intro .sticker { margin-bottom: 18px; background: transparent; }
   .intro h1 { font-size: clamp(3.4rem, 8.4vw, 6.6rem); line-height: .98; letter-spacing: -0.025em; margin-bottom: .35em; }
   .hl { background: linear-gradient(transparent 60%, var(--lemon) 60%, var(--lemon) 92%, transparent 92%); }
   .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }

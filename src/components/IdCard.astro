@@ -12,7 +12,7 @@ const photoFile = ["reetika.jpg", "reetika.webp", "reetika.png"].find((f) =>
 );
 ---
 <div class="stage" data-badge>
-  <svg class="strap" aria-hidden="true"><path class="s-edge" /><path class="s-fill" /><path class="s-dash" /></svg>
+  <svg class="strap" aria-hidden="true"><path class="s-edge" /><path class="s-fill" /><path class="s-band b1" /><path class="s-band b2" /><path class="s-band b3" /><path class="s-band b4" /><path class="s-band b5" /><path class="s-dash" /></svg>
   <div class="badge" role="group" aria-label="ID card for Reetika Raj, Product Design, Development and Management">
     <div class="clip" aria-hidden="true"><span></span></div>
     <div class="sleeve">
@@ -190,8 +190,12 @@ const photoFile = ["reetika.jpg", "reetika.webp", "reetika.png"].find((f) =>
   .stage { position: relative; height: 100%; min-height: 560px; perspective: 1200px; }
   .strap { position: absolute; left: 0; width: 100%; overflow: visible; pointer-events: none; }
   .strap path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
-  .s-edge { stroke: var(--lav-ink); stroke-width: 17; opacity: .55; }
-  .s-fill { stroke: var(--lav); stroke-width: 14; }
+  .s-edge { stroke: #5546AD; stroke-width: 17; opacity: .45; }
+  .s-fill { stroke: #B3A8EC; stroke-width: 14; }
+  /* multicolour lanyard: five colour blocks repeating along the strap */
+  .s-band { stroke-width: 14; stroke-linecap: butt !important; stroke-dasharray: 22 88; }
+  .b1 { stroke: #B3A8EC; } .b2 { stroke: #F0BCCB; stroke-dashoffset: -22; } .b3 { stroke: #F4E4A6; stroke-dashoffset: -44; }
+  .b4 { stroke: #B3DCC8; stroke-dashoffset: -66; } .b5 { stroke: #AFD5E8; stroke-dashoffset: -88; }
   .s-dash { stroke: #fff; stroke-width: 1.5; stroke-dasharray: 3 7; opacity: .7; }
 
   .badge { position: absolute; left: 0; top: 0; width: 264px; transform-origin: 50% 0; cursor: url("/cursor-link.svg") 4 4, grab; touch-action: none; user-select: none; -webkit-user-select: none; will-change: transform; filter: drop-shadow(0 18px 22px rgba(60, 50, 100, .18)); }

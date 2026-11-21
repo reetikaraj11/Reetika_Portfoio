@@ -82,12 +82,12 @@ const { scenarios = [], mood = scenarios[0]?.mood ?? "happy", msg = scenarios[0]
   .f-open, .f-brow, .f-flat { opacity: 0; }
   .b-msg { position: absolute; left: 36%; right: 17%; top: 37%; margin: 0; text-align: center; font: 700 clamp(.62rem, calc(var(--bw) * .045), .95rem)/1.15 var(--f-hand); color: var(--line); }
 
-  .buddy[data-mood="info"] { --glow: #8FC7E8; }
+  .buddy[data-mood="info"] { --glow: var(--b, #8FC7E8); }
   .buddy[data-mood="info"] .f-happy { opacity: 0; } .buddy[data-mood="info"] .f-open { opacity: 1; }
-  .buddy[data-mood="warn"] { --glow: #F4D35E; }
+  .buddy[data-mood="warn"] { --glow: var(--a, #F4D35E); }
   .buddy[data-mood="warn"] .f-happy, .buddy[data-mood="warn"] .f-smile { opacity: 0; }
   .buddy[data-mood="warn"] .f-open, .buddy[data-mood="warn"] .f-flat { opacity: 1; }
-  .buddy[data-mood="alert"] { --glow: #F08A8A; }
+  .buddy[data-mood="alert"] { --glow: var(--b-ink, #F08A8A); }
   .buddy[data-mood="alert"] .f-happy, .buddy[data-mood="alert"] .f-smile { opacity: 0; }
   .buddy[data-mood="alert"] .f-open, .buddy[data-mood="alert"] .f-brow, .buddy[data-mood="alert"] .f-flat { opacity: 1; }
 

@@ -10,8 +10,7 @@ const { id, num, title, lede, tone = "plain" } = Astro.props;
 ---
 <section id={id} class:list={["chapter", `bg-${tone}`]} aria-labelledby={`${id}-h`}>
   <div class="wrap">
-    <header class:list={["ch-head", "reveal", { numbered: !!num }]}>
-      {num && <span class="ch-num" aria-hidden="true">{num}<i></i></span>}
+    <header class="ch-head reveal">
       <div class="ch-text">
         <h2 id={`${id}-h`} set:html={title} />
         {lede && <p class="lede" set:html={lede} />}
@@ -31,13 +30,6 @@ const { id, num, title, lede, tone = "plain" } = Astro.props;
   @media (prefers-reduced-motion: reduce) { .ch-num i { transform: none; transition: none; } }
   .ch-text h2 { margin-bottom: .4em; max-width: 20em; }
   .ch-text .lede { margin: 0; }
-  .bg-plain { background: var(--bg); }
-  .bg-white { background: var(--surface); }
-  .bg-lav { background: color-mix(in srgb, var(--lav-tint) 70%, var(--bg)); }
-  .bg-sky { background: color-mix(in srgb, var(--sky-tint) 75%, var(--bg)); }
-  .bg-pink { background: color-mix(in srgb, var(--pink-tint) 70%, var(--bg)); }
-  .bg-lemon { background: color-mix(in srgb, var(--lemon-tint) 80%, var(--bg)); }
-  .bg-mint { background: color-mix(in srgb, var(--mint-tint) 75%, var(--bg)); }
   .chapter :global(h2 em) { font-style: normal; }
   @media (max-width: 560px) { .ch-head.numbered { grid-template-columns: 1fr; row-gap: 6px; } }
 </style>

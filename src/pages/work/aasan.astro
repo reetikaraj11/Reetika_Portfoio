@@ -47,8 +47,8 @@ const fmea = [
 // p63
 const cost = [
   { k: "Seat cushion", v: 700, c: "var(--sky)" }, { k: "Mesh backrest", v: 550, c: "var(--lav)" }, { k: "Main metal frame", v: 500, c: "var(--mint)" },
-  { k: "Writing surface", v: 450, c: "var(--lemon)" }, { k: "5-star base & castors", v: 450, c: "var(--pink)" }, { k: "Knee rest platform", v: 350, c: "#C9C2E8" },
-  { k: "Gas lift", v: 300, c: "#BFE0EF" }, { k: "Hardware & assembly", v: 200, c: "#E3DFEE" },
+  { k: "Writing surface", v: 450, c: "var(--lemon)" }, { k: "5-star base & castors", v: 450, c: "var(--pink)" }, { k: "Knee rest platform", v: 350, c: "var(--b2)" },
+  { k: "Gas lift", v: 300, c: "var(--a2)" }, { k: "Hardware & assembly", v: 200, c: "var(--a-tint)" },
 ];
 const total = cost.reduce((a, b) => a + b.v, 0);
 // p36–41
@@ -92,8 +92,8 @@ const trials = [
   { label: "Cross-legged + laptop", img: img("trial-crossleg"), alt: "Tester sitting cross-legged while typing on a laptop on the desk", title: "Working cross-legged", text: "Laptop on the desk while sitting cross-legged: the posture many students actually use.", tags: ["Laptop", "Cross-legged"] },
 ];
 ---
-<Base title="Aasan · Reetika Raj" description="Case study: Aasan, an ergonomic classroom chair with a fold-over desk, open armrests and a footrest that lets students sit their way.">
-<div class="case" style="--accent:var(--sky);--accent-ink:var(--sky-ink);--accent-tint:var(--sky-tint)">
+<Base title="Aasan · Reetika Raj" description="Case study: Aasan, an ergonomic classroom chair with a fold-over desk, open armrests and a footrest that lets students sit their way." theme="aasan">
+<div class="case" data-skin="tab">
 
 <!-- ================= HERO ================= -->
 <header class="hero">

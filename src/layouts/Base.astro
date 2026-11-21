@@ -1,7 +1,7 @@
 ---
 import "../styles/global.css";
-interface Props { title: string; description?: string; }
-const { title, description = "Reetika Raj — Product Design, Development & Management, M.Des at IISc Bengaluru." } = Astro.props;
+interface Props { title: string; description?: string; theme?: "home" | "table" | "aasan" | "posture" | "crib"; }
+const { title, description = "Reetika Raj — Product Design, Development & Management, M.Des at IISc Bengaluru.", theme = "home" } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 ---
 <!doctype html>
@@ -14,9 +14,9 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..600&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Nunito+Sans:opsz,wght@6..12,400..800&family=Patrick+Hand&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..600&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Nunito+Sans:opsz,wght@6..12,400..800&family=Patrick+Hand&family=Limelight&family=Delius&family=Creepster&family=Almendra+Display&display=swap" rel="stylesheet" />
 </head>
-<body>
+<body class={`theme-${theme}`}>
   <a class="skip" href="#main">Skip to content</a>
   <header class="site-nav">
     <div class="wrap nav-inner">
@@ -50,6 +50,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
       if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
     }), { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
     document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+    // Give every floating element its own phase so they don't bob in unison.
+    document.querySelectorAll<HTMLElement>("img, .co-img, .hs-img, .compare, .q-wrap, .mat-img").forEach((el) => el.style.setProperty("--fd", `${(-Math.random() * 7).toFixed(2)}s`));
     // Split the page's main headline into words for a one-time staggered entrance.
     const h1 = document.querySelector<HTMLElement>("main h1");
     if (h1 && h1.children.length === 0) {
@@ -65,7 +67,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 <style is:global>
   .skip { position: absolute; left: -999px; top: 8px; background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 999px; z-index: 50; }
   .skip:focus { left: 8px; }
-  .site-nav { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .site-nav { position: sticky; top: 0; z-index: 30; background: rgba(255, 255, 255, .55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
   .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
   .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font: 750 1.1rem var(--f-head); }
   .logo-blob { display: inline-grid; place-items: center; width: 36px; height: 36px; background: var(--lav); border: 1.5px solid var(--edge); border-radius: 46% 54% 42% 58% / 55% 45% 55% 45%; font-size: 1.05rem; }
