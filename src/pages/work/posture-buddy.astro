@@ -59,12 +59,12 @@ const insights = [
   { saw: "Most people preferred a pet form.", ref: "Form feedback", means: "A puppy makes reminders feel friendly rather than nagging." },
 ];
 const personas = [
-  { name: "Mohit", age: 41, img: "persona-mohit", need: "Likes a clean desk with minimal things, and buys geometric-looking appliances." },
-  { name: "Neha", age: 31, img: "persona-neha", need: "Forgets to drink water; reminders for that and other important things would help." },
+  { name: "Raj Verma", age: 48, img: "persona-raj", need: "Likes a clean desk with minimal things, and buys geometric-looking appliances." },
+  { name: "Neha", age: 31, img: "persona-neha-new", need: "Forgets to drink water; reminders for that and other important things would help." },
   { name: "Tahmina", age: 25, img: "persona-tahmina", need: "Has asthma. Wants breathing and exercise reminders with posture detection, but nothing wearable." },
 ];
 const map = [
-  { who: "Mohit", need: "A minimal, tidy desk", feat: "Compact, boxy form that sits quietly on the desk" },
+  { who: "Raj Verma", need: "A minimal, tidy desk", feat: "Compact, boxy form that sits quietly on the desk" },
   { who: "Neha", need: "Remembering water and errands", feat: "Water, medicine and meeting reminders on screen" },
   { who: "Tahmina", need: "Breathing and exercise", feat: "Breathing and stretch prompts, yoga poses on screen" },
   { who: "Tahmina", need: "Nothing to wear", feat: "Camera-based posture detection from the desk" },
@@ -283,25 +283,7 @@ const ladder = ["Message on screen", "Light glows", "Voice prompt", "Vibration o
 
   <div class="grid g2 reveal" style="margin-top:20px">
     <div class="card ink">
-      <h3>5. Monitoring loop</h3>
-<pre><code>while awake:
-  frame = camera.read()
-  pose  = model.detect(frame)       # ears, shoulders, hips
-  neck  = angle(pose.ear, pose.shoulder)
-  back  = angle(pose.shoulder, pose.hip)
-
-  if neck &gt; 25 or back &gt; 20:  level = ALERT
-  elif neck &gt; 15 or back &gt; 10: level = NUDGE
-  else:                          level = OK
-
-  timer.track(level)                # held for 60 s?
-  if timer.held(level, 60):
-    buddy.respond(level)            # face → light → voice → buzz
-  reminders.check()                 # water, stretch, meetings</code></pre>
-      <p class="muted small" style="margin:10px 0 0">Thresholds are illustrative and would be tuned in testing.</p>
-    </div>
-    <div class="card ink">
-      <h3>6. Device flow</h3>
+      <h3>5. Device flow</h3>
       <ol class="flow-v">
         <li>Power on and start up</li>
         <li>Begin monitoring posture</li>
@@ -331,28 +313,6 @@ const ladder = ["Message on screen", "Light glows", "Voice prompt", "Vibration o
   </div>
 </Chapter>
 
-<Chapter id="reflect" num="15" title="Outcome and reflection: what we made, and what I learned" tone="mint">
-  <div class="grid g2 reveal">
-    <div class="card ink">
-      <h3>Outcome</h3>
-      <ul class="ticks">
-        <li>A desk companion designed from research and user feedback</li>
-        <li>Features traced to three personas' needs</li>
-        <li>An expressive puppy form, chosen by the people we asked</li>
-        <li>A thermocol model for size, and a proposed software design</li>
-      </ul>
-    </div>
-    <div class="card ink">
-      <h3>What I learned</h3>
-      <ul class="ticks">
-        <li><b>Test early, even if it fails.</b> The backpack showed what users wouldn't accept.</li>
-        <li><b>Design for the habit, not the knowledge.</b> People already knew; they needed reminding.</li>
-        <li><b>Let users shape the form.</b> Asking people led straight to the puppy.</li>
-        <li><b>Next:</b> build the detection, then test the alert levels with real users.</li>
-      </ul>
-    </div>
-  </div>
-</Chapter>
 
 <section class="back">
   <div class="wrap">

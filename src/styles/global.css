@@ -149,23 +149,23 @@ body[class*="theme-"]::before {
 }
 
 /* ============ Section-heading typefaces per project ============ */
-/* Installed Windows fonts first; a close free lookalike for visitors who don't have them. */
-.theme-table { --f-sec: "Broadway", "Limelight", serif; --sec-size: .82; }
-.theme-aasan { --f-sec: "Kristen ITC", "Delius", cursive; --sec-size: .9; }
-.theme-posture { --f-sec: "Chiller", "Creepster", fantasy; --sec-size: 1.25; }
-.theme-crib { --f-sec: "Harrington", "Almendra Display", serif; --sec-size: 1; }
+/* Google Fonts, loaded in Base.astro. */
+.theme-table { --f-sec: "Fraunces", Georgia, serif; --sec-wt: 500; --sec-size: 1; }  /* Fraunces – titles only */
+.theme-crib { --f-sec: "Baloo 2", system-ui, sans-serif; --sec-wt: 600; --sec-size: 1; }  /* Baloo 2 – playful */
+.theme-posture { --f-sec: "Nunito", system-ui, sans-serif; --sec-wt: 700; --sec-size: 1; }  /* Nunito – soft */
+.theme-aasan { --f-sec: "Outfit", system-ui, sans-serif; --sec-wt: 600; --sec-size: 1; }  /* Outfit – modern */
 body[class*="theme-"] .ch-text h2, .theme-crib .divider h2 {
-  font-family: var(--f-sec, var(--f-display)); font-weight: 400; letter-spacing: 0; font-style: normal;
+  font-family: var(--f-sec, var(--f-display)); font-weight: var(--sec-wt, 400); letter-spacing: -0.01em; font-style: normal;
   font-size: calc(clamp(1.9rem, 3.6vw, 2.9rem) * var(--sec-size, 1));
 }
 .theme-crib .divider h2 { font-size: clamp(2.6rem, 6vw, 4.4rem); }
 
-/* Home: MV Boli everywhere except the ID card */
+/* Home: Itim everywhere except the ID card */
 .theme-home {
-  --f-display: "MV Boli", "Patrick Hand", cursive;
-  --f-head: "MV Boli", "Patrick Hand", cursive;
-  --f-body: "MV Boli", "Patrick Hand", cursive;
-  --f-hand: "MV Boli", "Patrick Hand", cursive;
+  --f-display: "Itim", system-ui, sans-serif;
+  --f-head: "Itim", system-ui, sans-serif;
+  --f-body: "Itim", system-ui, sans-serif;
+  --f-hand: "Itim", system-ui, sans-serif;
 }
 .theme-home .badge {
   --f-display: "Newsreader", Georgia, serif;
